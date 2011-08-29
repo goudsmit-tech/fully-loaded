@@ -102,7 +102,7 @@
 - (void)imageLoaded:(NSNotification *)aNote {
     
     UIImage *anImage = [[FullyLoaded sharedFullyLoaded] imageForURL:self.imageURLString];
-    if (anImage) {
+    if (anImage != self.image) {
         [self populateImage:anImage];
     }
     

@@ -81,6 +81,11 @@
     [super dealloc];
 }
 
+- (void)prepareForReuse {
+    self.image = nil;
+    self.imageURLString = nil;
+}
+
 - (void)loadImageAtURLString:(NSString *)aString placeholderImage:(UIImage *)placeholderImage {
     
     self.imageURLString = aString;

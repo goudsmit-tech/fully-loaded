@@ -69,7 +69,22 @@ inProgressURLStrings = _inProgressURLStrings;
         self.inProgressURLStrings = [[[NSMutableSet alloc] init] autorelease];
         self.imageCache = [[[NSMutableDictionary alloc] init] autorelease];
         self.imageCachePath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"images"];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resume) name:FLIdleNotification object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self 
+                                                 selector:@selector(resume) 
+                                                     name:FLIdleNotification 
+                                                   object:nil];
+        
+        
+        // note (itsbonczek): iOS sometimes removes old files from /tmp while the app is suspended. When a UIImage loses
+        // it's file data, it will try to attempt to restore it from disk. However, if the image happens to have been
+        // deleted, UIImage can't restore itself and UIImageView will end up showing a black image. To combat this
+        // we delete the in-memory cache whenever the app is backgrounded.
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(emptyCache)
+                                                     name:UIApplicationDidEnterBackgroundNotification
+                                                   object:nil];
     }
     return self;
 }

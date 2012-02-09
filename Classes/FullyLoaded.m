@@ -165,7 +165,10 @@ inProgressURLStrings = _inProgressURLStrings;
 
 - (void)queuedRequestFailed:(ASIHTTPRequest *)request {
     //NSLog(@"Failed: %@", [[request url] absoluteString]);
-    [self.inProgressURLStrings removeObject:[[request url] absoluteString]];	
+    
+    if([[request url] absoluteString]){
+        [self.inProgressURLStrings removeObject:[[request url] absoluteString]];	
+    }
 }
 
 - (void)loadImageOnMainThread:(ASIHTTPRequest *)request {

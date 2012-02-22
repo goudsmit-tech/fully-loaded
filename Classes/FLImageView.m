@@ -24,8 +24,10 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 
+
 #import "FLImageView.h"
 #import "FullyLoaded.h"
+
 
 @interface FLImageView()
 
@@ -39,6 +41,7 @@
 
 @end
 
+
 @implementation FLImageView
 
 @synthesize autoresizeEnabled;
@@ -46,6 +49,15 @@
 
 @synthesize imageURLString;
 @synthesize activityIndicatorView;
+
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:FLImageLoadedNotification object:nil];
+    self.imageURLString = nil;
+    self.activityIndicatorView = nil;
+    [super dealloc];
+}
+
 
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
@@ -60,6 +72,7 @@
     return self;
 }
 
+
 - (id)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
     if (self) {
@@ -72,19 +85,12 @@
     return self;
 }
 
-- (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:FLImageLoadedNotification
-                                                  object:nil];
-    self.imageURLString = nil;
-    self.activityIndicatorView = nil;
-    [super dealloc];
-}
 
 - (void)prepareForReuse {
     self.image = nil;
     self.imageURLString = nil;
 }
+
 
 - (void)loadImageAtURLString:(NSString *)aString placeholderImage:(UIImage *)placeholderImage {
     
@@ -94,15 +100,17 @@
     UIImage *anImage = [[FullyLoaded sharedFullyLoaded] imageForURL:self.imageURLString];
     if (anImage != nil) {
         [self populateImage:anImage];
-    } else {
+    }
+    else {
         [self populateImage:placeholderImage];
         
         //only show image loading if we're going to the network to fetch it
-        if(self.showsLoadingActivity){
+        if (self.showsLoadingActivity) {
             [self setLoading:YES];
         }
     }
 }
+
 
 - (void)imageLoaded:(NSNotification *)aNote {
     
@@ -111,27 +119,32 @@
         [self populateImage:anImage];
     }
     
-    if(self.showsLoadingActivity){
+    if (self.showsLoadingActivity) {
         [self setLoading:NO];
     }
 }
 
+
 #pragma mark - Overrides
+
 
 - (void)setShowsLoadingActivity:(BOOL)shouldShowActivity {
     showsLoadingActivity = shouldShowActivity;
     
-    if(shouldShowActivity){
-        if(!self.activityIndicatorView){
+    if (shouldShowActivity) {
+        if (!self.activityIndicatorView) {
             [self configureActivityIndicatorView];
         }
-    }else {
+    }
+    else {
         [self.activityIndicatorView removeFromSuperview];
         self.activityIndicatorView = nil;
     }
 }
 
+
 #pragma mark - Private
+
 
 - (void)populateImage:(UIImage *)anImage {
     if (self.autoresizeEnabled) {
@@ -140,7 +153,7 @@
         newBounds.size.height = anImage.size.height / [UIScreen mainScreen].scale;
         self.frame = newBounds;
         self.image = anImage;
-//        self.image = [self scaledImageJustifiedLeft:anImage];
+        //self.image = [self scaledImageJustifiedLeft:anImage];
     }
     else {
         self.image = anImage;
@@ -162,7 +175,7 @@
     // aspect ratios
     CGFloat i_ar = is.width / is.height;
     CGFloat b_ar = bs.width / bs.height;
-
+    
     CGFloat scale;
     if (i_ar < b_ar) { // image is thinner than bounds; fit height
         scale = bs.height / is.height;
@@ -189,19 +202,22 @@
     return res;
 }
 
+
 // if YES, shows and animates the activity indicator at the center of the view
 - (void)setLoading:(BOOL)isLoading {
-    if(isLoading){
+    if (isLoading) {
         [self.activityIndicatorView startAnimating];
-    }else {
+    }
+    else {
         [self.activityIndicatorView stopAnimating];
     }
 }
 
+
 // sets up self.activityIndicatorView and adds it as a subview
 - (void)configureActivityIndicatorView {
     self.activityIndicatorView = 
-        [[[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray] autorelease];
+    [[[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray] autorelease];
     
     // center the indicator
     CGRect activityIndicatorFrame = self.activityIndicatorView.frame;

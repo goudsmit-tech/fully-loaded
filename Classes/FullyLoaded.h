@@ -24,16 +24,17 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 
+
 #import <Foundation/Foundation.h>
 
 #define FLImageLoadedNotification @"FLImageLoadedNotification"
 #define FLIdleNotification @"FLIdleNotification"
 
-@interface FullyLoaded : NSObject {
-    
-}
+
+@interface FullyLoaded : NSObject
 
 + (FullyLoaded *)sharedFullyLoaded;
+
 - (void)emptyCache;
 - (UIImage *)imageForURL:(NSString *)aURLString;
 - (void)enqueueURLString:(NSString *)aURLString;

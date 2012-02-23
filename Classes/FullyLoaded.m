@@ -246,7 +246,7 @@ suspended       = _suspended;
 
 
 - (void)fetchOrEnqueueURL:(NSURL *)url {
-    ASSERT_MAIN_THREAD; // pendingURLSet is not synchronized
+    ASSERT_MAIN_THREAD; // pendingURLSet, urlQueue are not synchronized
     
     NSAssert(![self.pendingURLSet containsObject:url], @"pendingURLSet already contains url: %@", url);
     
@@ -262,6 +262,7 @@ suspended       = _suspended;
 
 
 - (void)dequeueNextURL {
+    ASSERT_MAIN_THREAD; // urlQueue is not synchronized
     NSAssert(self.connectionsAvailable, @"exceeded max connection count: %d", self.connectionCount);
     
     if (!self.urlQueue.count) return;
@@ -324,6 +325,8 @@ suspended       = _suspended;
 
 
 - (UIImage *)imageForURL:(NSURL *)url {
+    
+    ASSERT_MAIN_THREAD; // pendingURLSet is not synchronized
     
     if (!url) {
         FLLog(@"nil url");

@@ -226,22 +226,24 @@ suspended       = _suspended;
                                        queue:self.responseQueue
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
                                
-                               FLResponse *r = [[FLResponse new] autorelease];
-                               
-                               r.url = url; // save the original url, not the response URL, which might be nil on error
-                               r.error = error;
-                               
-                               if (!r.error) {
-                                   r.image = [UIImage imageWithData:data];
+                               @autoreleasepool {
+                                   FLResponse *r = [[FLResponse new] autorelease];
                                    
-                                   if (r.image) {
-                                       [self cacheImage:r.image forURL:r.url];
+                                   r.url = url; // save the original url; response.URL might be nil on error
+                                   r.error = error;
+                                   
+                                   if (!r.error) {
+                                       r.image = [UIImage imageWithData:data];
+                                       
+                                       if (r.image) {
+                                           [self cacheImage:r.image forURL:r.url];
+                                       }
                                    }
+                                   
+                                   [self performSelectorOnMainThread:@selector(handleResponse:)
+                                                          withObject:r
+                                                       waitUntilDone:NO];
                                }
-                               
-                               [self performSelectorOnMainThread:@selector(handleResponse:)
-                                                      withObject:r
-                                                   waitUntilDone:NO];
                            }];    
 }
 

@@ -218,6 +218,8 @@ suspended       = _suspended;
 
 - (void)fetchURL:(NSURL *)url {
     
+    NSAssert(url, @"nil url");
+
     NSURLRequest *request = [[[NSURLRequest alloc] initWithURL:url] autorelease];
     
     [NSURLConnection sendAsynchronousRequest:request
@@ -226,7 +228,7 @@ suspended       = _suspended;
                                
                                FLResponse *r = [[FLResponse new] autorelease];
                                
-                               r.url = response.URL;
+                               r.url = url; // save the original url, not the response URL, which might be nil on error
                                r.error = error;
                                
                                if (!r.error) {
@@ -247,7 +249,7 @@ suspended       = _suspended;
 
 - (void)fetchOrEnqueueURL:(NSURL *)url {
     ASSERT_MAIN_THREAD; // pendingURLSet, urlQueue are not synchronized
-    
+        
     NSAssert(![self.pendingURLSet containsObject:url], @"pendingURLSet already contains url: %@", url);
     
     [self.pendingURLSet addObject:url];

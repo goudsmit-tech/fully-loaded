@@ -52,7 +52,7 @@
 
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:FLImageLoadedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     self.imageURLString = nil;
     self.activityIndicatorView = nil;
     [super dealloc];
@@ -97,7 +97,7 @@
     self.imageURLString = aString;
     self.image = nil;
     
-    UIImage *anImage = [[FullyLoaded sharedFullyLoaded] imageForURL:self.imageURLString];
+    UIImage *anImage = [[FullyLoaded sharedFullyLoaded] imageForURLString:self.imageURLString];
     if (anImage != nil) {
         [self populateImage:anImage];
     }
@@ -114,7 +114,7 @@
 
 - (void)imageLoaded:(NSNotification *)aNote {
     
-    UIImage *anImage = [[FullyLoaded sharedFullyLoaded] imageForURL:self.imageURLString];
+    UIImage *anImage = [[FullyLoaded sharedFullyLoaded] imageForURLString:self.imageURLString];
     if (anImage != nil && anImage != self.image) {
         [self populateImage:anImage];
     }

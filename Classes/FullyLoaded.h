@@ -28,7 +28,6 @@
 #import <Foundation/Foundation.h>
 
 #define FLImageLoadedNotification @"FLImageLoadedNotification"
-#define FLIdleNotification @"FLIdleNotification"
 
 
 @interface FullyLoaded : NSObject
@@ -36,11 +35,13 @@
 + (FullyLoaded *)sharedFullyLoaded;
 
 - (void)emptyCache;
-- (UIImage *)imageForURL:(NSString *)aURLString;
-- (void)enqueueURLString:(NSString *)aURLString;
 - (void)resume;
 - (void)suspend;
-- (NSString *)pathForImage:(NSString *)aURLString;
-- (void)cacheImage:(UIImage *)anImage forURLString:(NSString *)aURLString;
+
+- (UIImage *)imageForURL:(NSURL *)url;
+- (UIImage *)imageForURLString:(NSString *)urlString;
+
+- (void)cacheImage:(UIImage *)image forURL:(NSURL *)url;
+- (void)cacheImage:(UIImage *)anImage forURLString:(NSString *)urlString;
 
 @end

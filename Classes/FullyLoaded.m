@@ -282,7 +282,7 @@ suspended       = _suspended;
         FLError(@"connection: %@", response.error);
     }
     else {
-        // TODO: could always post (or post separate failuer note), include url and error in userInfo
+        // TODO: could always post (or post separate failure note), include url and error in userInfo
         [[NSNotificationCenter defaultCenter] postNotificationName:FLImageLoadedNotification object:self];
     }
     

@@ -47,6 +47,10 @@
 #endif
 
 
+#ifdef ASSERT_MAIN_THREAD
+#undef ASSERT_MAIN_THREAD
+#endif
+
 #define ASSERT_MAIN_THREAD \
 NSAssert1([NSThread isMainThread], @"%@: must be called from the main thread", __FUNCTION__);
 
@@ -225,7 +229,7 @@ suspended       = _suspended;
     [NSURLConnection sendAsynchronousRequest:request
                                        queue:self.responseQueue
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
-                               
+                                                              
                                @autoreleasepool {
                                    FLResponse *r = [[FLResponse new] autorelease];
                                    

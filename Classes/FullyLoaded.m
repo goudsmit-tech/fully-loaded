@@ -271,9 +271,9 @@ suspended       = _suspended;
     
     if (!self.urlQueue.count) return;
     
-    NSURL *url = [self.urlQueue objectAtIndex:0];
+    NSURL *url = [self.urlQueue lastObject]; // FILO: last request is most likely to be still relevant
     [url retain];
-    [self.urlQueue removeObjectAtIndex:0];
+    [self.urlQueue removeLastObject];
     [self fetchURL:url];
     [url release];
 }

@@ -63,6 +63,7 @@ static NSString * const FLIdleRunloopNotification = @"FLIdleRunloopNotification"
 
 @property (nonatomic, retain) NSURL *url;
 @property (nonatomic, retain) UIImage *image;
+@property (nonatomic, retain) NSData *imageData;
 @property (nonatomic, retain) NSError *error;
 
 @end
@@ -71,12 +72,23 @@ static NSString * const FLIdleRunloopNotification = @"FLIdleRunloopNotification"
 @implementation FLResponse
 
 @synthesize
-url     = _url,
-image   = _image,
-error   = _error;
+url         = _url,
+image       = _image,
+imageData   = _imageData,
+error       = _error;
+
+
+- (void)dealloc {
+    
+    self.url = nil;
+    self.image = nil;
+    self.imageData = nil;
+    self.error = nil;
+    
+    [super dealloc];
+}
 
 @end
-
 
 
 @interface FullyLoaded()
@@ -91,6 +103,10 @@ error   = _error;
 @property (nonatomic) BOOL suspended;
 
 - (void)dequeueNextURL;
+
+- (void)cacheResponse:(FLResponse *)r;
+- (void)cacheImageData:(NSData *)data forImage:(UIImage *)image url:(NSURL *)url;
+- (UIImage *)retrieveImageForURL:(NSURL *)url;
 
 @end
 
@@ -157,14 +173,18 @@ suspended       = _suspended;
 }
 
 
-- (void)cacheImage:(UIImage *)image forURL:(NSURL *)url {
+- (void)cacheResponse:(FLResponse *)r {
     
-    NSAssert(image, @"nil image");
-    NSAssert(url, @"nil url");
+    NSAssert(r.image, @"nil image");
+    NSAssert(r.url, @"nil url");
     
-    @synchronized(self.imageCache) {
-        [self.imageCache setObject:image forKey:url];
-    }
+    [self cacheImageData:r.imageData
+                forImage:r.image
+                     url:r.url];
+
+}
+
+- (void)cacheImageData:(NSData *)data forImage:(UIImage *)image url:(NSURL *)url {
     
     NSString *path = [self pathForURL:url];
     NSString *dir = [path stringByDeletingLastPathComponent];
@@ -179,14 +199,12 @@ suspended       = _suspended;
         FLError(@"creating directory: %@\n%@", dir, error);
         return;
     }
-
-    NSData *jpegData = UIImageJPEGRepresentation(image, 0.8f);
-    if (!jpegData) {
-        FLError(@"creating jpeg data: %@", url);
-        return;
+    
+    @synchronized(self.imageCache) {
+        [self.imageCache setObject:image forKey:url];
     }
     
-    [jpegData writeToFile:path options:NSDataWritingAtomic error:&error];
+    [data writeToFile:path options:NSDataWritingAtomic error:&error];
     
     if (error) {
         FLError(@"writing to file: %@\n%@", path, error);
@@ -197,28 +215,11 @@ suspended       = _suspended;
     }
 }
 
-
 - (void)cacheImage:(UIImage *)image forURLString:(NSString *)urlString {
-    
-    [self cacheImage:image forURL:[NSURL URLWithString:urlString]];
+    [self cacheImageData:UIImageJPEGRepresentation(image, 0.8f)
+                forImage:image
+                     url:[NSURL URLWithString:urlString]];
 }
-
-
-- (UIImage *)retrieveImageForURL:(NSURL *)url {
-    
-    UIImage *image = [UIImage imageWithContentsOfFile:[self pathForURL:url]];
-    
-    if (image) {
-        @synchronized(self.imageCache) {
-            [self.imageCache setObject:image forKey:url];
-        }
-    }
-    
-    FLLog(@"retrieved: %@", url);
-    return image;
-}
-
-
 
 - (void)fetchURL:(NSURL *)url {
     
@@ -235,12 +236,13 @@ suspended       = _suspended;
                                    
                                    r.url = url; // save the original url; response.URL might be nil on error
                                    r.error = error;
+                                   r.imageData = data;
                                    
                                    if (!r.error) {
-                                       r.image = [UIImage imageWithData:data];
+                                       r.image = [UIImage imageWithData:r.imageData];
                                        
                                        if (r.image) {
-                                           [self cacheImage:r.image forURL:r.url];
+                                           [self cacheResponse:r];
                                        }
                                    }
                                    
@@ -362,6 +364,20 @@ suspended       = _suspended;
 
 - (UIImage *)imageForURLString:(NSString *)urlString {
     return [self imageForURL:[NSURL URLWithString:urlString]];
+}
+
+- (UIImage *)retrieveImageForURL:(NSURL *)url {
+    
+    UIImage *image = [UIImage imageWithContentsOfFile:[self pathForURL:url]];
+    
+    if (image) {
+        @synchronized(self.imageCache) {
+            [self.imageCache setObject:image forKey:url];
+        }
+    }
+    
+    FLLog(@"retrieved: %@", url);
+    return image;
 }
 
 

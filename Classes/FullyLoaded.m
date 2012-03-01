@@ -184,6 +184,13 @@ suspended       = _suspended;
 
 }
 
+- (void)cacheImage:(UIImage *)image forURLString:(NSString *)urlString {
+    [self cacheImageData:UIImageJPEGRepresentation(image, 0.8f)
+                forImage:image
+                     url:[NSURL URLWithString:urlString]];
+}
+
+
 - (void)cacheImageData:(NSData *)data forImage:(UIImage *)image url:(NSURL *)url {
     
     NSString *path = [self pathForURL:url];
@@ -215,11 +222,6 @@ suspended       = _suspended;
     }
 }
 
-- (void)cacheImage:(UIImage *)image forURLString:(NSString *)urlString {
-    [self cacheImageData:UIImageJPEGRepresentation(image, 0.8f)
-                forImage:image
-                     url:[NSURL URLWithString:urlString]];
-}
 
 - (void)fetchURL:(NSURL *)url {
     

@@ -232,7 +232,8 @@ suspended       = _suspended;
     [NSURLConnection sendAsynchronousRequest:request
                                        queue:self.responseQueue
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
-                                                              
+
+                               // TODO: catch exceptions and convert to errors?
                                @autoreleasepool {
                                    FLResponse *r = [[FLResponse new] autorelease];
                                    

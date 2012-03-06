@@ -63,6 +63,7 @@
     self = [super initWithFrame:frame];
     if (self) {
         self.autoresizeEnabled = NO;
+        self.contentScaleFactor = [UIScreen mainScreen].scale;
         self.contentMode = UIViewContentModeScaleAspectFit;
         [[NSNotificationCenter defaultCenter] addObserver:self 
                                                  selector:@selector(imageLoaded:)

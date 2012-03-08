@@ -106,7 +106,7 @@ error       = _error;
 
 - (void)cacheResponse:(FLResponse *)r;
 - (void)cacheImageData:(NSData *)data forImage:(UIImage *)image url:(NSURL *)url;
-- (UIImage *)retrieveImageForURL:(NSURL *)url;
+- (UIImage *)cachedImageForURL:(NSURL *)url;
 
 @end
 
@@ -257,7 +257,6 @@ suspended       = _suspended;
 }
 
 
-
 - (void)fetchOrEnqueueURL:(NSURL *)url {
     ASSERT_MAIN_THREAD; // pendingURLSet, urlQueue are not synchronized
         
@@ -354,7 +353,7 @@ suspended       = _suspended;
     
     if (image) return image;
     
-    if ((image = [self retrieveImageForURL:url])) {
+    if ((image = [self cachedImageForURL:url])) {
         return image;
     }
     
@@ -369,7 +368,9 @@ suspended       = _suspended;
     return [self imageForURL:[NSURL URLWithString:urlString]];
 }
 
-- (UIImage *)retrieveImageForURL:(NSURL *)url {
+
+
+- (UIImage *)cachedImageForURL:(NSURL *)url {
     
     UIImage *image = [UIImage imageWithContentsOfFile:[self pathForURL:url]];
     
@@ -381,6 +382,11 @@ suspended       = _suspended;
     
     FLLog(@"retrieved: %@", url);
     return image;
+}
+
+
+- (UIImage *)cachedImageForURLString:(NSString *)urlString {
+    return [self cachedImageForURL:[NSURL URLWithString:urlString]];
 }
 
 

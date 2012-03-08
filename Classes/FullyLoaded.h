@@ -41,6 +41,9 @@
 - (UIImage *)imageForURL:(NSURL *)url;
 - (UIImage *)imageForURLString:(NSString *)urlString;
 
+- (UIImage *)cachedImageForURL:(NSURL *)url;
+- (UIImage *)cachedImageForURLString:(NSString *)urlString;
+
 - (void)cacheImage:(UIImage *)anImage forURLString:(NSString *)urlString;
 
 @end

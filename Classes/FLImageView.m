@@ -65,6 +65,7 @@ activityIndicatorView   = _activityIndicatorView;
         self.autoresizeEnabled = NO;
         self.contentScaleFactor = [UIScreen mainScreen].scale;
         self.contentMode = UIViewContentModeScaleAspectFit;
+        
         [[NSNotificationCenter defaultCenter] addObserver:self 
                                                  selector:@selector(imageLoaded:)
                                                      name:FLImageLoadedNotification 
@@ -78,6 +79,7 @@ activityIndicatorView   = _activityIndicatorView;
     self = [super initWithCoder:decoder];
     if (self) {
         self.contentMode = UIViewContentModeScaleAspectFit;
+        
         [[NSNotificationCenter defaultCenter] addObserver:self 
                                                  selector:@selector(imageLoaded:)
                                                      name:FLImageLoadedNotification 
@@ -115,7 +117,7 @@ activityIndicatorView   = _activityIndicatorView;
 
 - (void)imageLoaded:(NSNotification *)note {
     
-    UIImage *image = [[FullyLoaded sharedFullyLoaded] imageForURLString:self.imageURLString];
+    UIImage *image = [[FullyLoaded sharedFullyLoaded] cachedImageForURLString:self.imageURLString];
     if (image && image != self.image) {
         [self populateImage:image];
     }
@@ -148,6 +150,7 @@ activityIndicatorView   = _activityIndicatorView;
 
 
 - (void)populateImage:(UIImage *)image {
+    
     if (self.autoresizeEnabled) {
         CGRect f = self.frame;
         CGFloat scale = [UIScreen mainScreen].scale;

@@ -74,8 +74,8 @@
 }
 
 
-- (id)initWithCoder:(NSCoder *)aDecoder {
-    self = [super initWithCoder:aDecoder];
+- (id)initWithCoder:(NSCoder *)decoder {
+    self = [super initWithCoder:decoder];
     if (self) {
         self.contentMode = UIViewContentModeScaleAspectFit;
         [[NSNotificationCenter defaultCenter] addObserver:self 
@@ -93,14 +93,14 @@
 }
 
 
-- (void)loadImageAtURLString:(NSString *)aString placeholderImage:(UIImage *)placeholderImage {
+- (void)loadImageAtURLString:(NSString *)urlString placeholderImage:(UIImage *)placeholderImage {
     
-    self.imageURLString = aString;
+    self.imageURLString = urlString;
     self.image = nil;
     
-    UIImage *anImage = [[FullyLoaded sharedFullyLoaded] imageForURLString:self.imageURLString];
-    if (anImage != nil) {
-        [self populateImage:anImage];
+    UIImage *image = [[FullyLoaded sharedFullyLoaded] imageForURLString:self.imageURLString];
+    if (image) {
+        [self populateImage:image];
     }
     else {
         [self populateImage:placeholderImage];
@@ -113,11 +113,11 @@
 }
 
 
-- (void)imageLoaded:(NSNotification *)aNote {
+- (void)imageLoaded:(NSNotification *)note {
     
-    UIImage *anImage = [[FullyLoaded sharedFullyLoaded] imageForURLString:self.imageURLString];
-    if (anImage != nil && anImage != self.image) {
-        [self populateImage:anImage];
+    UIImage *image = [[FullyLoaded sharedFullyLoaded] imageForURLString:self.imageURLString];
+    if (image && image != self.image) {
+        [self populateImage:image];
     }
     
     if (self.showsLoadingActivity) {
@@ -147,17 +147,17 @@
 #pragma mark - Private
 
 
-- (void)populateImage:(UIImage *)anImage {
+- (void)populateImage:(UIImage *)image {
     if (self.autoresizeEnabled) {
-        CGRect newBounds = self.frame;
-        newBounds.size.width = anImage.size.width / [UIScreen mainScreen].scale;
-        newBounds.size.height = anImage.size.height / [UIScreen mainScreen].scale;
-        self.frame = newBounds;
-        self.image = anImage;
-        //self.image = [self scaledImageJustifiedLeft:anImage];
+        CGRect f = self.frame;
+        CGFloat scale = [UIScreen mainScreen].scale;
+        f.size.width = image.size.width / scale;
+        f.size.height = image.size.height / scale;
+        self.frame = f;
+        self.image = image;
     }
     else {
-        self.image = anImage;
+        self.image = image;
     }
 }
 

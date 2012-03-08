@@ -151,16 +151,14 @@ activityIndicatorView   = _activityIndicatorView;
 
 - (void)populateImage:(UIImage *)image {
     
+    self.image = image;
+    
     if (self.autoresizeEnabled) {
         CGRect f = self.frame;
         CGFloat scale = [UIScreen mainScreen].scale;
         f.size.width = image.size.width / scale;
         f.size.height = image.size.height / scale;
         self.frame = f;
-        self.image = image;
-    }
-    else {
-        self.image = image;
     }
 }
 

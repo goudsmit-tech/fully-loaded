@@ -44,11 +44,11 @@
 
 @implementation FLImageView
 
-@synthesize autoresizeEnabled;
-@synthesize showsLoadingActivity;
-
-@synthesize imageURLString;
-@synthesize activityIndicatorView;
+@synthesize
+autoresizeEnabled       = _autoresizeEnabled,
+showsLoadingActivity    = _showsLoadingActivity,
+imageURLString          = _imageURLString,
+activityIndicatorView   = _activityIndicatorView;
 
 
 - (void)dealloc {
@@ -129,10 +129,10 @@
 #pragma mark - Overrides
 
 
-- (void)setShowsLoadingActivity:(BOOL)shouldShowActivity {
-    showsLoadingActivity = shouldShowActivity;
+- (void)setShowsLoadingActivity:(BOOL)showsLoadingActivity {
+    self.showsLoadingActivity = showsLoadingActivity;
     
-    if (shouldShowActivity) {
+    if (showsLoadingActivity) {
         if (!self.activityIndicatorView) {
             [self configureActivityIndicatorView];
         }

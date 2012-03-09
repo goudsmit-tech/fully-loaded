@@ -198,8 +198,8 @@ suspended       = _suspended;
         FLError(@"writing to file: %@\n%@", path, error);
     }
     else {
-        FLLog(@"cached: %@", url);
-        // FLLog(@"at path: %@", path);
+        FLLog(@"wrote to cache: %@", url);
+        //FLLog(@"at path: %@", path);
     }
 }
 
@@ -327,7 +327,7 @@ suspended       = _suspended;
         [self.imageCache setObject:image forKey:url];
     }
     
-    FLLog(@"retrieved: %@", url);
+    FLLog(@"retrieved from cache: %@", url);
     return image;
 }
 

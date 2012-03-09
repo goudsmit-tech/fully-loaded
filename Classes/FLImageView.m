@@ -132,7 +132,8 @@ activityIndicatorView   = _activityIndicatorView;
 
 
 - (void)setShowsLoadingActivity:(BOOL)showsLoadingActivity {
-    self.showsLoadingActivity = showsLoadingActivity;
+
+    _showsLoadingActivity = showsLoadingActivity;
     
     if (showsLoadingActivity) {
         if (!self.activityIndicatorView) {

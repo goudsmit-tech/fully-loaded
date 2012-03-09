@@ -63,7 +63,7 @@ static NSString * const FLIdleRunloopNotification = @"FLIdleRunloopNotification"
 
 @property (nonatomic, retain) NSURL *url;
 @property (nonatomic, retain) UIImage *image;
-@property (nonatomic, retain) NSData *imageData;
+@property (nonatomic, retain) NSData *data;
 @property (nonatomic, retain) NSError *error;
 
 @end
@@ -72,17 +72,17 @@ static NSString * const FLIdleRunloopNotification = @"FLIdleRunloopNotification"
 @implementation FLResponse
 
 @synthesize
-url         = _url,
-image       = _image,
-imageData   = _imageData,
-error       = _error;
+url     = _url,
+image   = _image,
+data    = _data,
+error   = _error;
 
 
 - (void)dealloc {
     
     self.url = nil;
     self.image = nil;
-    self.imageData = nil;
+    self.data = nil;
     self.error = nil;
     
     [super dealloc];
@@ -94,7 +94,7 @@ error       = _error;
 @interface FullyLoaded()
 
 @property (nonatomic, retain) NSString *imageCachePath;
-@property (nonatomic, retain) NSMutableDictionary *imageCache;  // maps urls to images; access must be synchronized
+@property (nonatomic, retain) NSMutableDictionary *imageCache;  // maps urls to images
 @property (nonatomic, retain) NSMutableArray *urlQueue;         // urls that have not yet been connected
 @property (nonatomic, retain) NSMutableSet *pendingURLSet;      // urls in the queue, plus connected urls
 @property (nonatomic, retain) NSOperationQueue *responseQueue;  // operation queue for NSURLConnection
@@ -104,8 +104,7 @@ error       = _error;
 
 - (void)dequeueNextURL;
 
-- (void)cacheResponse:(FLResponse *)r;
-- (void)cacheImageData:(NSData *)data forImage:(UIImage *)image url:(NSURL *)url;
+- (void)cacheImage:(UIImage *)image data:(NSData *)data url:(NSURL *)url;
 - (UIImage *)cachedImageForURL:(NSURL *)url;
 
 @end
@@ -173,25 +172,9 @@ suspended       = _suspended;
 }
 
 
-- (void)cacheResponse:(FLResponse *)r {
-    
-    NSAssert(r.image, @"nil image");
-    NSAssert(r.url, @"nil url");
-    
-    [self cacheImageData:r.imageData
-                forImage:r.image
-                     url:r.url];
-
-}
-
-- (void)cacheImage:(UIImage *)image forURLString:(NSString *)urlString {
-    [self cacheImageData:UIImageJPEGRepresentation(image, 0.8f)
-                forImage:image
-                     url:[NSURL URLWithString:urlString]];
-}
-
-
-- (void)cacheImageData:(NSData *)data forImage:(UIImage *)image url:(NSURL *)url {
+// principal caching operation: first write to disk, then store in dictionary
+// data is passed as a separate argumnt for efficiency, in the case where we already have data and image objects
+- (void)cacheImage:(UIImage *)image data:(NSData *)data url:(NSURL *)url {
     
     NSString *path = [self pathForURL:url];
     NSString *dir = [path stringByDeletingLastPathComponent];
@@ -207,9 +190,7 @@ suspended       = _suspended;
         return;
     }
     
-    @synchronized(self.imageCache) {
-        [self.imageCache setObject:image forKey:url];
-    }
+    [self.imageCache setObject:image forKey:url];
     
     [data writeToFile:path options:NSDataWritingAtomic error:&error];
     
@@ -226,27 +207,23 @@ suspended       = _suspended;
 - (void)fetchURL:(NSURL *)url {
     
     NSAssert(url, @"nil url");
-
+    
     NSURLRequest *request = [[[NSURLRequest alloc] initWithURL:url] autorelease];
     
     [NSURLConnection sendAsynchronousRequest:request
                                        queue:self.responseQueue
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
-
+                               
                                // TODO: catch exceptions and convert to errors?
                                @autoreleasepool {
                                    FLResponse *r = [[FLResponse new] autorelease];
                                    
                                    r.url = url; // save the original url; response.URL might be nil on error
                                    r.error = error;
-                                   r.imageData = data;
+                                   r.data = data;
                                    
                                    if (!r.error) {
-                                       r.image = [UIImage imageWithData:r.imageData];
-                                       
-                                       if (r.image) {
-                                           [self cacheResponse:r];
-                                       }
+                                       r.image = [UIImage imageWithData:r.data];
                                    }
                                    
                                    [self performSelectorOnMainThread:@selector(handleResponse:)
@@ -259,7 +236,7 @@ suspended       = _suspended;
 
 - (void)fetchOrEnqueueURL:(NSURL *)url {
     ASSERT_MAIN_THREAD; // pendingURLSet, urlQueue are not synchronized
-        
+    
     NSAssert(![self.pendingURLSet containsObject:url], @"pendingURLSet already contains url: %@", url);
     
     [self.pendingURLSet addObject:url];
@@ -290,10 +267,18 @@ suspended       = _suspended;
 - (void)handleResponse:(FLResponse *)response {
     ASSERT_MAIN_THREAD; // pendingURLSet is not synchronized
     
+    NSAssert(response.url, @"nil url"); // matches assertion in fetchURL
+    
     if (response.error) {
         FLError(@"connection: %@", response.error);
     }
+    else if (!response.image) {
+        // although the download completed, the imageWithData call failed; perhaps bad/damaged image on server
+        FLError(@"nil image: %@", response.url);
+    }
     else {
+        [self cacheImage:response.image data:response.data url:response.url];
+        
         // TODO: could always post (or post separate failure note), include url and error in userInfo
         [[NSNotificationCenter defaultCenter] postNotificationName:FLImageLoadedNotification object:self];
     }
@@ -305,9 +290,7 @@ suspended       = _suspended;
 
 - (void)emptyCache {
     FLLog(@"emptying Cache");
-    @synchronized(self.imageCache) {
-        [self.imageCache removeAllObjects];
-    }
+    [self.imageCache removeAllObjects];
 }
 
 
@@ -336,6 +319,19 @@ suspended       = _suspended;
 }
 
 
+- (UIImage *)cachedImageForURL:(NSURL *)url {
+    
+    UIImage *image = [UIImage imageWithContentsOfFile:[self pathForURL:url]];
+    
+    if (image) {
+        [self.imageCache setObject:image forKey:url];
+    }
+    
+    FLLog(@"retrieved: %@", url);
+    return image;
+}
+
+
 - (UIImage *)imageForURL:(NSURL *)url {
     
     ASSERT_MAIN_THREAD; // pendingURLSet is not synchronized
@@ -345,12 +341,7 @@ suspended       = _suspended;
         return nil;
     }
     
-    UIImage *image;
-    
-    @synchronized(self.imageCache) {
-        image = [self.imageCache objectForKey:url];
-    }
-    
+    UIImage *image = [self.imageCache objectForKey:url];
     if (image) return image;
     
     if ((image = [self cachedImageForURL:url])) {
@@ -364,30 +355,32 @@ suspended       = _suspended;
 }
 
 
-- (UIImage *)imageForURLString:(NSString *)urlString {
-    return [self imageForURL:[NSURL URLWithString:urlString]];
+// MARK: cache insertion
+
+
+- (void)cacheImage:(UIImage *)image forURL:(NSURL *)url {
+    [self cacheImage:image data:UIImageJPEGRepresentation(image, 0.8f) url:url];
 }
 
 
+// MARK: url string wrappers
 
-- (UIImage *)cachedImageForURL:(NSURL *)url {
-    
-    UIImage *image = [UIImage imageWithContentsOfFile:[self pathForURL:url]];
-    
-    if (image) {
-        @synchronized(self.imageCache) {
-            [self.imageCache setObject:image forKey:url];
-        }
-    }
-    
-    FLLog(@"retrieved: %@", url);
-    return image;
+
+- (UIImage *)imageForURLString:(NSString *)urlString {
+    return [self imageForURL:[NSURL URLWithString:urlString]];
 }
 
 
 - (UIImage *)cachedImageForURLString:(NSString *)urlString {
     return [self cachedImageForURL:[NSURL URLWithString:urlString]];
 }
+
+
+- (void)cacheImage:(UIImage *)image forURLString:(NSString *)urlString {
+    [self cacheImage:image forURL:[NSURL URLWithString:urlString]];
+}
+
+
 
 
 @end

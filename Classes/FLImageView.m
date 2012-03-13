@@ -31,10 +31,10 @@
 
 @interface FLImageView()
 
-@property (nonatomic, readwrite, retain) NSString *imageURLString;
+@property (nonatomic, readwrite, retain) NSURL *url;
 @property (nonatomic, readwrite, retain) UIActivityIndicatorView *activityIndicatorView;
 
-- (void)populateImage:(UIImage *)anImage;
+- (void)populateImage:(UIImage *)image;
 - (UIImage*)scaledImageJustifiedLeft:(UIImage*)image;
 - (void)setLoading:(BOOL)isLoading;
 - (void)configureActivityIndicatorView;
@@ -45,15 +45,14 @@
 @implementation FLImageView
 
 @synthesize
+url                     = _url,
 autoresizeEnabled       = _autoresizeEnabled,
 showsLoadingActivity    = _showsLoadingActivity,
-imageURLString          = _imageURLString,
 activityIndicatorView   = _activityIndicatorView;
 
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    self.imageURLString = nil;
+    self.url = nil; // removes observer
     self.activityIndicatorView = nil;
     [super dealloc];
 }
@@ -65,11 +64,6 @@ activityIndicatorView   = _activityIndicatorView;
         self.autoresizeEnabled = NO;
         self.contentScaleFactor = [UIScreen mainScreen].scale;
         self.contentMode = UIViewContentModeScaleAspectFit;
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self 
-                                                 selector:@selector(imageLoaded:)
-                                                     name:FLImageLoadedNotification 
-                                                   object:nil];
     }
     return self;
 }
@@ -79,28 +73,38 @@ activityIndicatorView   = _activityIndicatorView;
     self = [super initWithCoder:decoder];
     if (self) {
         self.contentMode = UIViewContentModeScaleAspectFit;
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self 
-                                                 selector:@selector(imageLoaded:)
-                                                     name:FLImageLoadedNotification 
-                                                   object:nil];
     }
     return self;
 }
 
 
+- (void)setUrl:(NSURL *)url {
+    [url retain];
+    [_url release];
+    _url = url;
+    
+    NSNotificationCenter *c = [NSNotificationCenter defaultCenter];
+    [c removeObserver:self];
+    
+    if (self.url) {
+        // note: the sender object argument is self.url; the center does pointer comparison on the url for dispatch
+        [c addObserver:self selector:@selector(imageLoaded:) name:FLImageLoadedNotification  object:url];
+    }
+}
+
+    
 - (void)prepareForReuse {
+    self.url = nil;
     self.image = nil;
-    self.imageURLString = nil;
 }
 
 
-- (void)loadImageAtURLString:(NSString *)urlString placeholderImage:(UIImage *)placeholderImage {
+- (void)loadImageAtURL:(NSURL *)url placeholderImage:(UIImage *)placeholderImage {
     
-    self.imageURLString = urlString;
+    self.url = url; // sets up observer
     self.image = nil;
-    
-    UIImage *image = [[FullyLoaded sharedFullyLoaded] imageForURLString:self.imageURLString];
+
+    UIImage *image = [[FullyLoaded sharedFullyLoaded] imageForURL:url];
     if (image) {
         [self populateImage:image];
     }
@@ -115,11 +119,16 @@ activityIndicatorView   = _activityIndicatorView;
 }
 
 
+- (void)loadImageAtURLString:(NSString *)urlString placeholderImage:(UIImage *)placeholderImage {
+    [self loadImageAtURL:[NSURL URLWithString:urlString] placeholderImage:placeholderImage];
+}
+
+
 - (void)imageLoaded:(NSNotification *)note {
     
-    FLLog(@"%p notified: %@", self, note.object);
+    FLLog(@"note %10p: %@", self, note.object);
     
-    UIImage *image = [[FullyLoaded sharedFullyLoaded] cachedImageForURLString:self.imageURLString];
+    UIImage *image = [[FullyLoaded sharedFullyLoaded] cachedImageForURL:self.url];
     if (image && image != self.image) {
         [self populateImage:image];
     }
@@ -134,7 +143,7 @@ activityIndicatorView   = _activityIndicatorView;
 
 
 - (void)setShowsLoadingActivity:(BOOL)showsLoadingActivity {
-
+    
     _showsLoadingActivity = showsLoadingActivity;
     
     if (showsLoadingActivity) {
@@ -169,7 +178,7 @@ activityIndicatorView   = _activityIndicatorView;
 // create an image the size of the current bounds, with content left-justified
 // in the future this could be refactored with a justification enum of (left|center|right)
 // justifyImage:(UIImage*) x:(justification) y:(justification)
-- (UIImage*)scaledImageJustifiedLeft:(UIImage*)image {
+- (UIImage *)scaledImageJustifiedLeft:(UIImage*)image {
     
     CGSize is = image.size;         // image size
     CGSize bs = self.bounds.size;   // bounds size

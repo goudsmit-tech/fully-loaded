@@ -38,6 +38,7 @@
 @property (nonatomic, assign) BOOL showsLoadingActivity; 
 @property (nonatomic, readonly, retain) UIActivityIndicatorView *activityIndicatorView;
 
+- (void)loadImageAtURL:(NSURL *)url placeholderImage:(UIImage *)placeholderImage;
 - (void)loadImageAtURLString:(NSString *)urlString placeholderImage:(UIImage *)placeholderImage;
 
 @end

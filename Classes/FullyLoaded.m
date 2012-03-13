@@ -186,7 +186,7 @@ suspended       = _suspended;
         FLError(@"writing to file: %@\n%@", path, error);
     }
     else {
-        FLLog(@"cached: %@", url);
+        FLLog(@"cached:          %@", url);
         //FLLog(@"at path: %@", path);
     }
 }
@@ -206,7 +206,8 @@ suspended       = _suspended;
                                @autoreleasepool {
                                    FLResponse *r = [[FLResponse new] autorelease];
                                    
-                                   r.url = url; // save the original url; response.URL might be nil on error
+                                   // save the original url; response.URL might be a redirect, or nil on error
+                                   r.url = url;
                                    r.error = error;
                                    r.data = data;
                                    
@@ -268,7 +269,8 @@ suspended       = _suspended;
         [self cacheImage:response.image data:response.data url:response.url];
         
         // TODO: could always post (or post separate failure note), include url and error in userInfo
-        [[NSNotificationCenter defaultCenter] postNotificationName:FLImageLoadedNotification object:self];
+        // note: the sender object argument is the url; the center does pointer comparison on the url for dispatch
+        [[NSNotificationCenter defaultCenter] postNotificationName:FLImageLoadedNotification object:response.url];
     }
     
     [self.pendingURLSet removeObject:response.url];
@@ -318,14 +320,14 @@ suspended       = _suspended;
     
     UIImage *image = [self.imageCache objectForKey:url];
     if (image) {
-        FLLog(@"from memory: %@", url);
+        FLLog(@"from memory:     %@", url);
         return image;
     }
     
     image = [UIImage imageWithContentsOfFile:[self pathForURL:url]];
     
     if (image) {
-        FLLog(@"from disk: %@", url);
+        FLLog(@"from disk:       %@", url);
         [self.imageCache setObject:image forKey:url];
         return image;
     }

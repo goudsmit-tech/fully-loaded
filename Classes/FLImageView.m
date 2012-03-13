@@ -117,6 +117,8 @@ activityIndicatorView   = _activityIndicatorView;
 
 - (void)imageLoaded:(NSNotification *)note {
     
+    FLLog(@"%p notified: %@", self, note.object);
+    
     UIImage *image = [[FullyLoaded sharedFullyLoaded] cachedImageForURLString:self.imageURLString];
     if (image && image != self.image) {
         [self populateImage:image];

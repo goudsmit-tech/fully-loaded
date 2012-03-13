@@ -28,18 +28,6 @@
 #import "FullyLoaded.h"
 #import "SynthesizeSingleton.h"
 
-#if FullyLoadedErrorLog
-#define FLError(...) NSLog(@"FullyLoaded error: " __VA_ARGS__)
-#else
-#define FLError(...) ((void)0)
-#endif
-
-#if FullyLoadedVerboseLog
-#define FLLog(...) NSLog(@"FullyLoaded: " __VA_ARGS__)
-#else
-#define FLLog(...) ((void)0)
-#endif
-
 
 // users can define their own concurrency rules
 #ifndef kFullyLoadedMaxConnections
@@ -198,7 +186,7 @@ suspended       = _suspended;
         FLError(@"writing to file: %@\n%@", path, error);
     }
     else {
-        FLLog(@"wrote to cache: %@", url);
+        FLLog(@"cached: %@", url);
         //FLLog(@"at path: %@", path);
     }
 }
@@ -289,7 +277,7 @@ suspended       = _suspended;
 
 
 - (void)emptyCache {
-    FLLog(@"emptying Cache");
+    FLLog(@"emptying cache");
     [self.imageCache removeAllObjects];
 }
 
@@ -321,14 +309,28 @@ suspended       = _suspended;
 
 - (UIImage *)cachedImageForURL:(NSURL *)url {
     
-    UIImage *image = [UIImage imageWithContentsOfFile:[self pathForURL:url]];
+    ASSERT_MAIN_THREAD;
     
-    if (image) {
-        [self.imageCache setObject:image forKey:url];
+    if (!url) {
+        FLLog(@"nil url");
+        return nil;
     }
     
-    FLLog(@"retrieved from cache: %@", url);
-    return image;
+    UIImage *image = [self.imageCache objectForKey:url];
+    if (image) {
+        FLLog(@"from memory: %@", url);
+        return image;
+    }
+    
+    image = [UIImage imageWithContentsOfFile:[self pathForURL:url]];
+    
+    if (image) {
+        FLLog(@"from disk: %@", url);
+        [self.imageCache setObject:image forKey:url];
+        return image;
+    }
+    
+    return nil;
 }
 
 
@@ -341,10 +343,8 @@ suspended       = _suspended;
         return nil;
     }
     
-    UIImage *image = [self.imageCache objectForKey:url];
-    if (image) return image;
-    
-    if ((image = [self cachedImageForURL:url])) {
+    UIImage *image = [self cachedImageForURL:url];
+    if (image) {
         return image;
     }
     

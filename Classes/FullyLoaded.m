@@ -35,14 +35,6 @@
 #endif
 
 
-#ifdef ASSERT_MAIN_THREAD
-#undef ASSERT_MAIN_THREAD
-#endif
-
-#define ASSERT_MAIN_THREAD \
-NSAssert1([NSThread isMainThread], @"%@: must be called from the main thread", __FUNCTION__);
-
-
 static NSString * const FLIdleRunloopNotification = @"FLIdleRunloopNotification";
 
 
@@ -83,8 +75,8 @@ error   = _error;
 
 @property (nonatomic, retain) NSString *imageCachePath;
 @property (nonatomic, retain) NSMutableDictionary *imageCache;  // maps urls to images
-@property (nonatomic, retain) NSMutableArray *urlQueue;         // urls that have not yet been connected
-@property (nonatomic, retain) NSMutableSet *pendingURLSet;      // urls in the queue, plus connected urls
+@property (nonatomic, retain) NSMutableArray *urlQueue;         // urls that have not yet been requested
+@property (nonatomic, retain) NSMutableSet *pendingURLSet;      // urls in the queue, plus requested urls
 @property (nonatomic, retain) NSOperationQueue *responseQueue;  // operation queue for NSURLConnection
 
 @property (nonatomic) int connectionCount; // number of connected urls
@@ -133,11 +125,11 @@ suspended       = _suspended;
 - (id)init {
     self = [super init];
     if (self) {
-        self.imageCachePath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"images"];
-        self.imageCache     = [NSMutableDictionary dictionary];
-        self.urlQueue       = [NSMutableArray array];
-        self.pendingURLSet  = [NSMutableSet set];
-        self.responseQueue  = [[NSOperationQueue new] autorelease];
+        self.imageCachePath     = [NSTemporaryDirectory() stringByAppendingPathComponent:@"images"];
+        self.imageCache         = [NSMutableDictionary dictionary];
+        self.urlQueue           = [NSMutableArray array];
+        self.pendingURLSet      = [NSMutableSet set];
+        self.responseQueue      = [[NSOperationQueue new] autorelease];
         
         NSNotificationCenter *c = [NSNotificationCenter defaultCenter];
         
@@ -232,7 +224,6 @@ suspended       = _suspended;
 
 
 - (void)fetchOrEnqueueURL:(NSURL *)url {
-    ASSERT_MAIN_THREAD; // pendingURLSet, urlQueue are not synchronized
     
     NSAssert(![self.pendingURLSet containsObject:url], @"pendingURLSet already contains url: %@", url);
     
@@ -248,7 +239,7 @@ suspended       = _suspended;
 
 
 - (void)dequeueNextURL {
-    ASSERT_MAIN_THREAD; // urlQueue is not synchronized
+    
     NSAssert(self.connectionsAvailable, @"exceeded max connection count: %d", self.connectionCount);
     
     if (!self.urlQueue.count) return;
@@ -262,12 +253,11 @@ suspended       = _suspended;
 
 
 - (void)handleResponse:(FLResponse *)response {
-    ASSERT_MAIN_THREAD; // pendingURLSet is not synchronized
     
     NSAssert(response.url, @"nil url"); // matches assertion in fetchURL
     
     if (response.error) {
-        FLError(@"connection: %@", response.error);
+        FLError(@"connection: %@\n%@", response.url, response.error);
     }
     else if (!response.image) {
         // although the download completed, the imageWithData call failed; perhaps bad/damaged image on server
@@ -275,9 +265,6 @@ suspended       = _suspended;
     }
     else {
         [self cacheImage:response.image data:response.data url:response.url];
-        
-        // TODO: could always post (or post separate failure note), include url and error in userInfo
-        // note: the sender object argument is the url; the center does pointer comparison on the url for dispatch
         [[NSNotificationCenter defaultCenter] postNotificationName:FLImageLoadedNotification object:response.url];
     }
     
@@ -339,9 +326,7 @@ suspended       = _suspended;
 
 
 - (UIImage *)cachedImageForURL:(NSURL *)url {
-    
-    ASSERT_MAIN_THREAD;
-    
+        
     if (!url) {
         FLLog(@"nil url");
         return nil;
@@ -366,9 +351,7 @@ suspended       = _suspended;
 
 
 - (UIImage *)imageForURL:(NSURL *)url {
-    
-    ASSERT_MAIN_THREAD; // pendingURLSet is not synchronized
-    
+        
     if (!url) {
         FLLog(@"nil url");
         return nil;

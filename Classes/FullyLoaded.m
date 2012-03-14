@@ -112,6 +112,14 @@ connectionCount = _connectionCount,
 suspended       = _suspended;
 
 
+// clear cache on launch for debugging
+#if 0
++ (void)initialize {
+    [[self sharedFullyLoaded] clearCache];
+}
+#endif
+
+
 - (void)dealloc {
     self.imageCachePath = nil;
     self.imageCache = nil;
@@ -140,7 +148,10 @@ suspended       = _suspended;
         // it's file data, it will try to attempt to restore it from disk. However, if the image happens to have been
         // deleted, UIImage can't restore itself and UIImageView will end up showing a black image. To combat this
         // we delete the in-memory cache whenever the app is backgrounded.
-        [c addObserver:self selector:@selector(emptyCache) name:UIApplicationDidEnterBackgroundNotification object:nil];
+        [c addObserver:self
+              selector:@selector(clearMemoryCache)
+                  name:UIApplicationDidEnterBackgroundNotification
+                object:nil];
     }
     return self;
 }
@@ -278,9 +289,30 @@ suspended       = _suspended;
 }
 
 
-- (void)emptyCache {
-    FLLog(@"emptying cache");
+- (void)clearMemoryCache {
+    FLLog(@"clearing memory cache");
     [self.imageCache removeAllObjects];
+}
+
+
+- (void)clearCache {
+    [self clearMemoryCache];
+    
+    FLLog(@"clearing disk cache");
+    
+    NSFileManager *m = [NSFileManager defaultManager];
+    
+    if (![m fileExistsAtPath:self.imageCachePath]) {
+        FLLog(@"no existing disk cache");
+        return;
+    }
+    
+    NSError *error = nil;
+    [m removeItemAtPath:self.imageCachePath error:&error];
+    
+    if (error) {
+        FLError(@"could not clear disk cache: %@", error);
+    }
 }
 
 

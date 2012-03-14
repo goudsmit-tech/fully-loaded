@@ -47,7 +47,8 @@
 
 + (FullyLoaded *)sharedFullyLoaded;
 
-- (void)emptyCache;
+- (void)clearMemoryCache;   // clear memory only, leave cache files
+- (void)clearCache;         // clear memory and remove cache files
 - (void)resume;
 - (void)suspend;
 

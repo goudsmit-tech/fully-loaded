@@ -198,6 +198,23 @@ suspended       = _suspended;
     
     NSURLRequest *request = [[[NSURLRequest alloc] initWithURL:url] autorelease];
     
+    // preflight check
+    if (![NSURLConnection canHandleRequest:request]) {
+        // handle error now so that the caller is in the same stack (helps debugging with breakpoints)
+        FLResponse *r =[[FLResponse new] autorelease];
+        r.url = url;
+        // not sure what we could do here to be more descriptive
+        // perhaps a 
+        r.error = [NSError errorWithDomain:NSURLErrorDomain
+                                      code:NSURLErrorUnknown
+                                  userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
+                                            @"NSURLConnection cannot handle request",   NSLocalizedDescriptionKey,
+                                            url,                                        @"url",
+                                            nil]];
+        [self handleResponse:r];
+        return;
+    }
+    
     [NSURLConnection sendAsynchronousRequest:request
                                        queue:self.responseQueue
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {

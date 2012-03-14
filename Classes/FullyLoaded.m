@@ -172,12 +172,15 @@ suspended       = _suspended;
 
 
 // principal caching operation: first write to disk, then store in dictionary
-// data is passed as a separate argumnt for efficiency, in the case where we already have data and image objects
+// data is passed as a separate argument for efficiency, in the case where we already have data and image objects
 - (void)cacheImage:(UIImage *)image data:(NSData *)data url:(NSURL *)url {
     
     NSString *path = [self pathForURL:url];
     NSString *dir = [path stringByDeletingLastPathComponent];
     NSError *error = nil;
+    
+    [self.imageCache setObject:image forKey:url];
+    FLLog(@"cached:          %@", url);
     
     [[NSFileManager defaultManager] createDirectoryAtPath:dir
                               withIntermediateDirectories:YES
@@ -189,16 +192,10 @@ suspended       = _suspended;
         return;
     }
     
-    [self.imageCache setObject:image forKey:url];
-    
     [data writeToFile:path options:NSDataWritingAtomic error:&error];
     
     if (error) {
         FLError(@"writing to file: %@\n%@", path, error);
-    }
-    else {
-        FLLog(@"cached:          %@", url);
-        //FLLog(@"at path: %@", path);
     }
 }
 

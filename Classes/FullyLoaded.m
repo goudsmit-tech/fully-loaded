@@ -86,6 +86,7 @@ error   = _error;
 
 - (void)cacheImage:(UIImage *)image data:(NSData *)data url:(NSURL *)url;
 - (UIImage *)cachedImageForURL:(NSURL *)url;
+- (void)handleResponse:(FLResponse *)response;
 
 @end
 

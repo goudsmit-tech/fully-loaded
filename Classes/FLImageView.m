@@ -87,8 +87,9 @@ activityIndicatorView   = _activityIndicatorView;
     [c removeObserver:self];
     
     if (self.url) {
-        // note: the sender object argument is self.url; the center does pointer comparison on the url for dispatch
-        [c addObserver:self selector:@selector(imageLoaded:) name:FLImageLoadedNotification  object:url];
+        // note: because NSNotificationCenter does pointer lookup on the sender object,
+        // we cannot reliably filter by URL using notifications.
+        [c addObserver:self selector:@selector(imageLoaded:) name:FLImageLoadedNotification object:nil];
     }
 }
 
@@ -127,6 +128,8 @@ activityIndicatorView   = _activityIndicatorView;
 - (void)imageLoaded:(NSNotification *)note {
     
     FLLog(@"note %10p: %@", self, note.object);
+    
+    if (![note.object isEqual:self.url]) return;
     
     UIImage *image = [[FullyLoaded sharedFullyLoaded] cachedImageForURL:self.url];
     if (image && image != self.image) {

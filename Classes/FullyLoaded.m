@@ -56,8 +56,6 @@ static NSString * const FLIdleRunloopNotification = @"FLIdleRunloopNotification"
 
 @property (nonatomic, retain) NSURL *url;
 @property (nonatomic, retain) UIImage *image;
-@property (nonatomic, retain) NSData *data;
-@property (nonatomic, retain) NSError *error;
 
 @end
 
@@ -66,18 +64,12 @@ static NSString * const FLIdleRunloopNotification = @"FLIdleRunloopNotification"
 
 @synthesize
 url     = _url,
-image   = _image,
-data    = _data,
-error   = _error;
+image   = _image;
 
 
 - (void)dealloc {
-    
     self.url = nil;
     self.image = nil;
-    self.data = nil;
-    self.error = nil;
-    
     [super dealloc];
 }
 
@@ -97,7 +89,6 @@ error   = _error;
 
 - (void)dequeueNextURL;
 
-- (void)cacheImage:(UIImage *)image data:(NSData *)data url:(NSURL *)url;
 - (UIImage *)cachedImageForURL:(NSURL *)url;
 - (void)handleResponse:(FLResponse *)response;
 
@@ -177,17 +168,13 @@ suspended       = _suspended;
 }
 
 
-// principal caching operation: first write to disk, then store in dictionary
-// data is passed as a separate argument for efficiency, in the case where we already have data and image objects
-- (void)cacheImage:(UIImage *)image data:(NSData *)data url:(NSURL *)url {
-    
+// returns path to image file
+- (NSString *)writeImageData:(NSData*)data url:(NSURL *)url {
+        
     NSString *path = [self pathForURL:url];
     NSString *dir = [path stringByDeletingLastPathComponent];
     NSError *error = nil;
-    
-    [self.imageCache setObject:image forKey:url];
-    FLLog(@"cached:          %@", url);
-    
+        
     [[NSFileManager defaultManager] createDirectoryAtPath:dir
                               withIntermediateDirectories:YES
                                                attributes:nil
@@ -195,14 +182,17 @@ suspended       = _suspended;
     
     if (error) {
         FLError(@"creating directory: %@\n%@", dir, error);
-        return;
+        return nil;
     }
     
     [data writeToFile:path options:NSDataWritingAtomic error:&error];
     
     if (error) {
         FLError(@"writing to file: %@\n%@", path, error);
+        return nil;
     }
+    
+    return path;
 }
 
 
@@ -215,17 +205,7 @@ suspended       = _suspended;
     // preflight check
     if (![NSURLConnection canHandleRequest:request]) {
         // handle error now so that the caller is in the same stack (helps debugging with breakpoints)
-        FLResponse *r =[[FLResponse new] autorelease];
-        r.url = url;
-        // not sure what we could do here to be more descriptive
-        // perhaps a 
-        r.error = [NSError errorWithDomain:NSURLErrorDomain
-                                      code:NSURLErrorUnknown
-                                  userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-                                            @"NSURLConnection cannot handle request",   NSLocalizedDescriptionKey,
-                                            url,                                        @"url",
-                                            nil]];
-        [self handleResponse:r];
+        FLError(@"preflight:        %@", url);
         return;
     }
     
@@ -235,15 +215,28 @@ suspended       = _suspended;
                                
                                // TODO: catch exceptions and convert to errors?
                                @autoreleasepool {
-                                   FLResponse *r = [[FLResponse new] autorelease];
                                    
+                                   FLResponse *r = [[FLResponse new] autorelease];
                                    // save the original url; response.URL might be a redirect, or nil on error
                                    r.url = url;
-                                   r.error = error;
-                                   r.data = data;
                                    
-                                   if (!r.error) {
-                                       r.image = [UIImage imageWithData:r.data];
+                                   if (error) {
+                                       FLError(@"connection: %@\n%@", url, error);
+                                   }
+                                   else {
+                                       NSString *path = [self writeImageData:data url:url];
+                                       if (path) {
+                                           // because UIImage may unload images that are backed on disk,
+                                           // we write and then read back the image here.
+                                           // this way all images behave consistently.
+                                           // manually cached images are the exception; see note below.
+                                           r.image = [UIImage imageWithContentsOfFile:path];
+                                           if (!r.image) {
+                                               // although the download completed, the image read failed
+                                               // perhaps bad/damaged image on server, or file system error
+                                               FLError(@"nil image: %@\n  path: %@", url, path);
+                                           }
+                                       } // else no path; error already logged
                                    }
                                    
                                    [self performSelectorOnMainThread:@selector(handleResponse:)
@@ -285,17 +278,11 @@ suspended       = _suspended;
 
 - (void)handleResponse:(FLResponse *)response {
     
-    NSAssert(response.url, @"nil url"); // matches assertion in fetchURL
+    NSAssert(response.url, @"nil url");     // matches assertion in fetchURL
     
-    if (response.error) {
-        FLError(@"connection: %@\n%@", response.url, response.error);
-    }
-    else if (!response.image) {
-        // although the download completed, the imageWithData call failed; perhaps bad/damaged image on server
-        FLError(@"nil image: %@", response.url);
-    }
-    else {
-        [self cacheImage:response.image data:response.data url:response.url];
+    if (response.image) {
+        [self.imageCache setObject:response.image forKey:response.url];
+        FLLog(@"cached:          %@", response.url);
         [[NSNotificationCenter defaultCenter] postNotificationName:FLImageLoadedNotification object:response.url];
     }
     
@@ -404,7 +391,10 @@ suspended       = _suspended;
 
 
 - (void)cacheImage:(UIImage *)image forURL:(NSURL *)url {
-    [self cacheImage:image data:UIImageJPEGRepresentation(image, 0.8f) url:url];
+    // note: unlike downloaded images, manually cached images might not have been initialized with a file path,
+    // and therefore might not be unloaded in low memory situations.
+    [self.imageCache setObject:image forKey:url];
+    [self writeImageData:UIImageJPEGRepresentation(image, 0.8f) url:url];
 }
 
 

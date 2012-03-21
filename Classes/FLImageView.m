@@ -127,7 +127,9 @@ activityIndicatorView   = _activityIndicatorView;
 
 - (void)imageLoaded:(NSNotification *)note {
     
+#if FullyLoadedVerboseLog
     FLLog(@"note %10p: %@", self, note.object);
+#endif
     
     if (![note.object isEqual:self.url]) return;
     

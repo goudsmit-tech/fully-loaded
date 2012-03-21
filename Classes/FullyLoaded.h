@@ -30,19 +30,6 @@
 #define FLImageLoadedNotification @"FLImageLoadedNotification"
 
 
-#if FullyLoadedErrorLog
-#define FLError(...) NSLog(@"FullyLoaded error: " __VA_ARGS__)
-#else
-#define FLError(...) ((void)0)
-#endif
-
-#if FullyLoadedVerboseLog
-#define FLLog(...) NSLog(@"FullyLoaded: " __VA_ARGS__)
-#else
-#define FLLog(...) ((void)0)
-#endif
-
-
 @interface FullyLoaded : NSObject
 
 + (FullyLoaded *)sharedFullyLoaded;

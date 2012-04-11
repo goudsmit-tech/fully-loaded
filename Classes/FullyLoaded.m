@@ -278,7 +278,7 @@ suspended       = _suspended;
 
 - (void)handleResponse:(FLResponse *)response {
     
-    NSAssert(response.url, @"nil url");     // matches assertion in fetchURL
+    NSAssert(response.url, @"nil url"); // matches assertion in fetchURL
     
     if (response.image) {
         [self.imageCache setObject:response.image forKey:response.url];

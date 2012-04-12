@@ -44,10 +44,11 @@
 @implementation FLImageView
 
 @synthesize
-url                     = _url,
-autoresizeEnabled       = _autoresizeEnabled,
-showsLoadingActivity    = _showsLoadingActivity,
-activityIndicatorView   = _activityIndicatorView;
+url                         = _url,
+autoresizeEnabled           = _autoresizeEnabled,
+showsLoadingActivity        = _showsLoadingActivity,
+activityIndicatorView       = _activityIndicatorView,
+shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
 
 
 - (void)dealloc {
@@ -94,6 +95,11 @@ activityIndicatorView   = _activityIndicatorView;
 
     
 - (void)prepareForReuse {
+    
+    if(self.shouldUnscheduleURLOnReuse){
+        [self cancelLoad];
+    }
+    
     self.url = nil;
     self.image = nil;
 }
@@ -123,12 +129,16 @@ activityIndicatorView   = _activityIndicatorView;
     [self loadImageAtURL:[NSURL URLWithString:urlString] placeholderImage:placeholderImage];
 }
 
+- (void)cancelLoad {
+    [[FullyLoaded sharedFullyLoaded] cancelURL:self.url];
+}
+
 
 - (void)imageLoaded:(NSNotification *)note {
     
-#if FullyLoadedVerboseLog
-    FLLog(@"note %10p: %@", self, note.object);
-#endif
+//#if FullyLoadedVerboseLog
+//    FLLog(@"note %10p: %@", self, note.object);
+//#endif
     
     if (![note.object isEqual:self.url]) return;
     

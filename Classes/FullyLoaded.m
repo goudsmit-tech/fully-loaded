@@ -242,6 +242,7 @@ suspended       = _suspended;
                                            // this way all images behave consistently.
                                            // manually cached images are the exception; see note below.
                                            r.image = [UIImage imageWithContentsOfFile:path];
+                                           
                                            if (!r.image) {
                                                // although the download completed, the image read failed
                                                // perhaps bad/damaged image on server, or file system error
@@ -266,6 +267,7 @@ suspended       = _suspended;
     
     [self.pendingURLSet addObject:url];
     
+    FLLog(@"pending url set:   %@", self.pendingURLSet);
     
     if (self.connectionsAvailable) {
         [self fetchURL:url];
@@ -308,6 +310,8 @@ suspended       = _suspended;
     }
     
     [self.pendingURLSet removeObject:response.url];
+    
+    FLLog(@"pending url set:   %@", self.pendingURLSet);
     
     self.connectionCount = self.connectionCount - 1;
     
@@ -364,6 +368,15 @@ suspended       = _suspended;
     if (self.connectionsAvailable) {
         [self dequeueNextURL];
     }
+}
+
+- (void)cancelURL:(NSURL *)url {
+
+    [self.pendingURLSet removeObject:url];
+    [self.urlQueue removeObject:url];
+    
+    FLLog(@"cancelURL: %@", url);
+    FLLog(@"pending url set:   %@", self.pendingURLSet);
 }
 
 

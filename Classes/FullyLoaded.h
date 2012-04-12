@@ -43,6 +43,7 @@
 - (void)clearCache;         // clear memory and remove cache files
 - (void)resume;
 - (void)suspend;
+- (void)cancelURL:(NSURL *)url;
 
 - (UIImage *)imageForURL:(NSURL *)url;
 - (UIImage *)imageForURLString:(NSString *)urlString;

@@ -38,7 +38,12 @@
 @property (nonatomic, assign) BOOL showsLoadingActivity; 
 @property (nonatomic, readonly, retain) UIActivityIndicatorView *activityIndicatorView;
 
+
+// if YES, the URL will be unscheduled for download whenever prepareForReuse is called
+@property (nonatomic, assign) BOOL shouldUnscheduleURLOnReuse;
+
 - (void)loadImageAtURL:(NSURL *)url placeholderImage:(UIImage *)placeholderImage;
 - (void)loadImageAtURLString:(NSString *)urlString placeholderImage:(UIImage *)placeholderImage;
+- (void)cancelLoad;
 
 @end

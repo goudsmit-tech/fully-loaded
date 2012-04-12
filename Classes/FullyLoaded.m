@@ -50,6 +50,7 @@
 
 static NSString * const FLIdleRunloopNotification = @"FLIdleRunloopNotification";
 
+static NSUInteger gMaxQueuedURLCount = 5;
 
 // encapsulates the result created in the urlQueue thread to pass to main thread. 
 @interface FLResponse : NSObject
@@ -116,6 +117,15 @@ suspended       = _suspended;
 }
 #endif
 
++ (void)setMaximumQueuedURLCount:(NSUInteger)count {
+    gMaxQueuedURLCount = count;
+}
+
++ (NSUInteger)maximumQueuedURLCount {
+    return gMaxQueuedURLCount;
+}
+
+
 
 - (void)dealloc {
     self.imageCachePath = nil;
@@ -130,6 +140,7 @@ suspended       = _suspended;
 - (id)init {
     self = [super init];
     if (self) {
+        
         self.imageCachePath     = [NSTemporaryDirectory() stringByAppendingPathComponent:@"images"];
         self.imageCache         = [NSMutableDictionary dictionary];
         self.urlQueue           = [NSMutableArray array];
@@ -244,6 +255,8 @@ suspended       = _suspended;
                                                        waitUntilDone:NO];
                                }
                            }];    
+    
+    self.connectionCount = self.connectionCount + 1;
 }
 
 
@@ -253,10 +266,18 @@ suspended       = _suspended;
     
     [self.pendingURLSet addObject:url];
     
+    
     if (self.connectionsAvailable) {
         [self fetchURL:url];
     }
     else {
+            
+        // make room for the new url
+        if(self.urlQueue.count == [FullyLoaded maximumQueuedURLCount]){
+            [self.pendingURLSet removeObject:[self.urlQueue objectAtIndex:0]];
+            [self.urlQueue removeObjectAtIndex:0];
+        }
+        
         [self.urlQueue addObject:url];
     }
 }
@@ -287,6 +308,9 @@ suspended       = _suspended;
     }
     
     [self.pendingURLSet removeObject:response.url];
+    
+    self.connectionCount = self.connectionCount - 1;
+    
     [self dequeueNextURL];
 }
 
@@ -380,6 +404,7 @@ suspended       = _suspended;
         return image;
     }
     
+    // TODO: if queue contains url, move the url to the front of the queue
     if (![self.pendingURLSet containsObject:url]) {
         [self fetchOrEnqueueURL:url];
     }

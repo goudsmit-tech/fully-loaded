@@ -34,6 +34,11 @@
 
 + (FullyLoaded *)sharedFullyLoaded;
 
+// The maximum number of URLs in pending to be downloaded. FullyLoaded will evict the oldest added URL if the queue
+// doesn't have any more room to add new URLs. Defaults to 5.
++ (void)setMaximumQueuedURLCount:(NSUInteger)count;
++ (NSUInteger)maximumQueuedURLCount;
+
 - (void)clearMemoryCache;   // clear memory only, leave cache files
 - (void)clearCache;         // clear memory and remove cache files
 - (void)resume;

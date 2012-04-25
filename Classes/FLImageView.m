@@ -113,6 +113,7 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
     UIImage *image = [[FullyLoaded sharedFullyLoaded] imageForURL:url];
     if (image) {
         [self populateImage:image];
+        [self didPopulateImage:YES];
     }
     else {
         [self populateImage:placeholderImage];
@@ -143,8 +144,10 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
     if (![note.object isEqual:self.url]) return;
     
     UIImage *image = [[FullyLoaded sharedFullyLoaded] cachedImageForURL:self.url];
+    
     if (image && image != self.image) {
         [self populateImage:image];
+        [self didPopulateImage:NO];
     }
     
     if (self.showsLoadingActivity) {
@@ -171,6 +174,9 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
     }
 }
 
+- (void)didPopulateImage:(BOOL)fromCache {
+    ;
+}
 
 #pragma mark - Private
 

@@ -452,7 +452,9 @@ suspended       = _suspended;
 
 
 - (void)cacheImage:(UIImage *)image forURLString:(NSString *)urlString {
-    [self cacheImage:image forURL:[NSURL URLWithString:urlString]];
+    if (image) {
+        [self cacheImage:image forURL:[NSURL URLWithString:urlString]];
+    }
 }
 
 

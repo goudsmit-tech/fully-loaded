@@ -372,11 +372,13 @@ suspended       = _suspended;
 
 - (void)cancelURL:(NSURL *)url {
 
-    [self.pendingURLSet removeObject:url];
-    [self.urlQueue removeObject:url];
-    
-    FLLog(@"cancelURL: %@", url);
-    FLLog(@"pending url set:   %@", self.pendingURLSet);
+    if(url){
+        [self.pendingURLSet removeObject:url];
+        [self.urlQueue removeObject:url];
+        
+        FLLog(@"cancelURL: %@", url);
+        FLLog(@"pending url set:   %@", self.pendingURLSet);
+    }
 }
 
 

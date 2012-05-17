@@ -96,7 +96,7 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
     
 - (void)prepareForReuse {
     
-    if(self.shouldUnscheduleURLOnReuse){
+    if (self.shouldUnscheduleURLOnReuse) {
         [self cancelLoad];
     }
     
@@ -129,6 +129,7 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
 - (void)loadImageAtURLString:(NSString *)urlString placeholderImage:(UIImage *)placeholderImage {
     [self loadImageAtURL:[NSURL URLWithString:urlString] placeholderImage:placeholderImage];
 }
+
 
 - (void)cancelLoad {
     [[FullyLoaded sharedFullyLoaded] cancelURL:self.url];
@@ -174,9 +175,11 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
     }
 }
 
+
 - (void)didPopulateImage:(BOOL)fromCache {
     ;
 }
+
 
 #pragma mark - Private
 

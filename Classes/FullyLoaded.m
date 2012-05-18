@@ -50,8 +50,6 @@
 
 static NSString * const FLIdleRunloopNotification = @"FLIdleRunloopNotification";
 
-static NSUInteger gMaxQueuedURLCount = 5;
-
 // encapsulates the result created in the urlQueue thread to pass to main thread. 
 @interface FLResponse : NSObject
 
@@ -116,15 +114,6 @@ suspended       = _suspended;
     [[self sharedFullyLoaded] clearCache];
 }
 #endif
-
-+ (void)setMaximumQueuedURLCount:(NSUInteger)count {
-    gMaxQueuedURLCount = count;
-}
-
-+ (NSUInteger)maximumQueuedURLCount {
-    return gMaxQueuedURLCount;
-}
-
 
 
 - (void)dealloc {
@@ -273,13 +262,6 @@ suspended       = _suspended;
         [self fetchURL:url];
     }
     else {
-            
-        // make room for the new url
-        if(self.urlQueue.count == [FullyLoaded maximumQueuedURLCount]){
-            [self.pendingURLSet removeObject:[self.urlQueue objectAtIndex:0]];
-            [self.urlQueue removeObjectAtIndex:0];
-        }
-        
         [self.urlQueue addObject:url];
     }
 }

@@ -95,7 +95,7 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
 
     
 - (void)prepareForReuse {
-    
+    [self setLoading:NO];
     if (self.shouldUnscheduleURLOnReuse) {
         [self cancelLoad];
     }

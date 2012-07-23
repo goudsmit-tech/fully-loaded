@@ -26,7 +26,6 @@
 
 
 #import "FullyLoaded.h"
-#import "SynthesizeSingleton.h"
 
 
 // users can define their own concurrency rules

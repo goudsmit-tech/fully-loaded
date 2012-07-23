@@ -96,8 +96,6 @@ image   = _image;
 
 @implementation FullyLoaded
 
-SYNTHESIZE_SINGLETON_FOR_CLASS(FullyLoaded);
-
 @synthesize
 imageCachePath  = _imageCachePath,
 imageCache      = _imageCache,
@@ -114,6 +112,15 @@ suspended       = _suspended;
     [[self sharedFullyLoaded] clearCache];
 }
 #endif
+
+
++ (id)sharedFullyLoaded {
+    FullyLoaded *shared = nil;
+    if (!shared) {
+        shared = [self new];
+    }
+    return shared;
+}
 
 
 - (void)dealloc {

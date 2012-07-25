@@ -52,8 +52,8 @@ static NSString * const FLIdleRunloopNotification = @"FLIdleRunloopNotification"
 // encapsulates the result created in the urlQueue thread to pass to main thread. 
 @interface FLResponse : NSObject
 
-@property (nonatomic, strong) NSURL *url;
-@property (nonatomic, strong) UIImage *image;
+@property (nonatomic) NSURL *url;
+@property (nonatomic) UIImage *image;
 
 @end
 
@@ -71,11 +71,11 @@ image   = _image;
 
 @interface FullyLoaded()
 
-@property (nonatomic, strong) NSString *imageCachePath;
-@property (nonatomic, strong) NSMutableDictionary *imageCache;  // maps urls to images
-@property (nonatomic, strong) NSMutableArray *urlQueue;         // urls that have not yet been requested
-@property (nonatomic, strong) NSMutableSet *pendingURLSet;      // urls in the queue, plus requested urls
-@property (nonatomic, strong) NSOperationQueue *responseQueue;  // operation queue for NSURLConnection
+@property (nonatomic) NSString *imageCachePath;
+@property (nonatomic) NSMutableDictionary *imageCache;  // maps urls to images
+@property (nonatomic) NSMutableArray *urlQueue;         // urls that have not yet been requested
+@property (nonatomic) NSMutableSet *pendingURLSet;      // urls in the queue, plus requested urls
+@property (nonatomic) NSOperationQueue *responseQueue;  // operation queue for NSURLConnection
 
 @property (nonatomic) int connectionCount; // number of connected urls
 @property (nonatomic) BOOL suspended;

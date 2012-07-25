@@ -30,17 +30,17 @@
 
 @interface FLImageView : UIImageView
 
-@property (nonatomic, assign) BOOL autoresizeEnabled;
+@property (nonatomic) BOOL autoresizeEnabled;
 
 // If YES, the view will show a centered activity indicator while the photo loads. You can customize the
 // appearance of the activity indicator using through the activityIndicator property. The indicator is lazy-loaded
 // after showsLoadingActivity is set to YES
-@property (nonatomic, assign) BOOL showsLoadingActivity; 
-@property (nonatomic, readonly, strong) UIActivityIndicatorView *activityIndicatorView;
+@property (nonatomic) BOOL showsLoadingActivity; 
+@property (nonatomic, readonly) UIActivityIndicatorView *activityIndicatorView;
 
 
 // If YES, the URL will be unscheduled for download whenever prepareForReuse is called
-@property (nonatomic, assign) BOOL shouldUnscheduleURLOnReuse;
+@property (nonatomic) BOOL shouldUnscheduleURLOnReuse;
 
 - (void)loadImageAtURL:(NSURL *)url placeholderImage:(UIImage *)placeholderImage;
 - (void)loadImageAtURLString:(NSString *)urlString placeholderImage:(UIImage *)placeholderImage;

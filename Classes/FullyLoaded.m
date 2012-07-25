@@ -65,11 +65,6 @@ url     = _url,
 image   = _image;
 
 
-- (void)dealloc {
-    self.url = nil;
-    self.image = nil;
-    [super dealloc];
-}
 
 @end
 
@@ -122,14 +117,6 @@ suspended       = _suspended;
 }
 
 
-- (void)dealloc {
-    self.imageCachePath = nil;
-    self.imageCache = nil;
-    self.urlQueue = nil;
-    self.pendingURLSet = nil;
-    self.responseQueue = nil;
-    [super dealloc];
-}
 
 
 - (id)init {
@@ -140,7 +127,7 @@ suspended       = _suspended;
         self.imageCache         = [NSMutableDictionary dictionary];
         self.urlQueue           = [NSMutableArray array];
         self.pendingURLSet      = [NSMutableSet set];
-        self.responseQueue      = [[NSOperationQueue new] autorelease];
+        self.responseQueue      = [NSOperationQueue new];
         
         NSNotificationCenter *c = [NSNotificationCenter defaultCenter];
         
@@ -206,7 +193,7 @@ suspended       = _suspended;
     
     NSAssert(url, @"nil url");
     
-    NSURLRequest *request = [[[NSURLRequest alloc] initWithURL:url] autorelease];
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url];
     
     // preflight check
     if (![NSURLConnection canHandleRequest:request]) {
@@ -222,7 +209,7 @@ suspended       = _suspended;
                                // TODO: catch exceptions and convert to errors?
                                @autoreleasepool {
                                    
-                                   FLResponse *r = [[FLResponse new] autorelease];
+                                   FLResponse *r = [FLResponse new];
                                    // save the original url; response.URL might be a redirect, or nil on error
                                    r.url = url;
                                    
@@ -280,10 +267,8 @@ suspended       = _suspended;
     if (!self.urlQueue.count) return;
     
     NSURL *url = [self.urlQueue lastObject]; // FILO: last request is most likely to be still relevant
-    [url retain];
     [self.urlQueue removeLastObject];
     [self fetchURL:url];
-    [url release];
 }
 
 

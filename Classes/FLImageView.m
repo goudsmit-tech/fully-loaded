@@ -53,8 +53,6 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
 
 - (void)dealloc {
     self.url = nil; // removes observer
-    self.activityIndicatorView = nil;
-    [super dealloc];
 }
 
 
@@ -79,8 +77,6 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
 
 
 - (void)setUrl:(NSURL *)url {
-    [url retain];
-    [_url release];
     _url = url;
     
     NSNotificationCenter *c = [NSNotificationCenter defaultCenter];
@@ -212,7 +208,7 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
 // sets up self.activityIndicatorView and adds it as a subview
 - (void)configureActivityIndicatorView {
     self.activityIndicatorView = 
-    [[[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray] autorelease];
+    [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
     
     // center the indicator
     CGRect activityIndicatorFrame = self.activityIndicatorView.frame;

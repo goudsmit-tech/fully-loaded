@@ -31,8 +31,8 @@
 
 @interface FLImageView()
 
-@property (nonatomic, readwrite, retain) NSURL *url;
-@property (nonatomic, readwrite, retain) UIActivityIndicatorView *activityIndicatorView;
+@property (nonatomic, readwrite, strong) NSURL *url;
+@property (nonatomic, readwrite, strong) UIActivityIndicatorView *activityIndicatorView;
 
 - (void)populateImage:(UIImage *)image;
 - (void)setLoading:(BOOL)isLoading;

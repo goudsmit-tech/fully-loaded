@@ -36,7 +36,7 @@
 // appearance of the activity indicator using through the activityIndicator property. The indicator is lazy-loaded
 // after showsLoadingActivity is set to YES
 @property (nonatomic, assign) BOOL showsLoadingActivity; 
-@property (nonatomic, readonly, retain) UIActivityIndicatorView *activityIndicatorView;
+@property (nonatomic, readonly, strong) UIActivityIndicatorView *activityIndicatorView;
 
 
 // If YES, the URL will be unscheduled for download whenever prepareForReuse is called

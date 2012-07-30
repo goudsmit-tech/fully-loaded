@@ -109,10 +109,13 @@ suspended       = _suspended;
 
 
 + (id)sharedFullyLoaded {
-    FullyLoaded *shared = nil;
+    
+    static FullyLoaded *shared = nil;
+    
     if (!shared) {
         shared = [self new];
     }
+    
     return shared;
 }
 

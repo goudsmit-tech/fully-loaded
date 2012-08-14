@@ -5,17 +5,17 @@
 //  Created by Anoop Ranganath on 1/1/11.
 //  Copyright 2011 Anoop Ranganath. All rights reserved.
 //
-//  
+//
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
 //  in the Software without restriction, including without limitation the rights
 //  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 //  copies of the Software, and to permit persons to whom the Software is
 //  furnished to do so, subject to the following conditions:
-//  
+//
 //  The above copyright notice and this permission notice shall be included in
 //  all copies or substantial portions of the Software.
-//  
+//
 //  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 //  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 //  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -49,7 +49,7 @@
 
 static NSString * const FLIdleRunloopNotification = @"FLIdleRunloopNotification";
 
-// encapsulates the result created in the urlQueue thread to pass to main thread. 
+// encapsulates the result created in the urlQueue thread to pass to main thread.
 @interface FLResponse : NSObject
 
 @property (nonatomic) NSURL *url;
@@ -160,7 +160,7 @@ suspended       = _suspended;
 
 - (NSString *)pathForURL:(NSURL*)url {
     NSString *hostPath = [self.imageCachePath stringByAppendingPathComponent:url.host];
-    return [hostPath stringByAppendingPathComponent:url.path];	
+    return [hostPath stringByAppendingPathComponent:url.path];
 }
 
 
@@ -240,7 +240,7 @@ suspended       = _suspended;
                                                           withObject:r
                                                        waitUntilDone:NO];
                                }
-                           }];    
+                           }];
     
     self.connectionCount = self.connectionCount + 1;
 }
@@ -330,7 +330,7 @@ suspended       = _suspended;
     
     // whenever the run loop becomes idle, this notification will get posted, and the queue will resume downloading
     NSNotification *n = [NSNotification notificationWithName:FLIdleRunloopNotification object:self];
-    [[NSNotificationQueue defaultQueue] enqueueNotification:n postingStyle:NSPostWhenIdle];	
+    [[NSNotificationQueue defaultQueue] enqueueNotification:n postingStyle:NSPostWhenIdle];
 }
 
 

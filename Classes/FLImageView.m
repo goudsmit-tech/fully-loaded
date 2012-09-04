@@ -104,7 +104,6 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
 - (void)loadImageAtURL:(NSURL *)url placeholderImage:(UIImage *)placeholderImage {
     
     self.url = url; // sets up observer
-    self.image = nil;
 
     UIImage *image = [[FullyLoaded sharedFullyLoaded] imageForURL:url];
     if (image) {
@@ -112,6 +111,7 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
         [self didPopulateImage:YES];
     }
     else {
+        self.image = nil;
         [self populateImage:placeholderImage];
         
         //only show image loading if we're going to the network to fetch it

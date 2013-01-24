@@ -46,9 +46,14 @@
 - (void)loadImageAtURLString:(NSString *)urlString placeholderImage:(UIImage *)placeholderImage;
 - (void)cancelLoad;
 
+
+// Called to set the image
+// Base class just sets the image
+// Subclasses can override to get custom behavior
+- (void)doPopulateImage:(UIImage *)image fromCache:(BOOL)fromCache;
+
 // Called whenever the view's final image is set. If fromCache is YES, the image was loaded from the image cache
 // Base implementation does nothing. Sublclasses can override.
-
 - (void)didPopulateImage:(BOOL)fromCache;
 
 @end

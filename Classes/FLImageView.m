@@ -34,7 +34,7 @@
 @property (nonatomic) NSURL *url;
 @property (nonatomic, readwrite) UIActivityIndicatorView *activityIndicatorView;
 
-- (void)populateImage:(UIImage *)image;
+- (void)populateImage:(UIImage *)image fromCache:(BOOL)fromCache;
 - (void)setLoading:(BOOL)isLoading;
 - (void)configureActivityIndicatorView;
 
@@ -109,12 +109,11 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
 
     UIImage *image = [[FullyLoaded sharedFullyLoaded] imageForURL:url];
     if (image) {
-        [self populateImage:image];
-        [self didPopulateImage:YES];
+        [self populateImage:image fromCache:YES];
     }
     else {
         self.image = nil;
-        [self populateImage:placeholderImage];
+        [self populateImage:placeholderImage fromCache:YES];
         
         //only show image loading if we're going to the network to fetch it
         if (self.showsLoadingActivity) {
@@ -145,8 +144,7 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
     UIImage *image = [[FullyLoaded sharedFullyLoaded] cachedImageForURL:self.url];
     
     if (image && image != self.image) {
-        [self populateImage:image];
-        [self didPopulateImage:NO];
+        [self populateImage:image fromCache:NO];
     }
     
     if (self.showsLoadingActivity) {
@@ -178,13 +176,19 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
     ;
 }
 
+- (void)doPopulateImage:(UIImage *)image fromCache:(BOOL)fromCache {
+    self.image = image;
+}
+
 
 #pragma mark - Private
 
 
-- (void)populateImage:(UIImage *)image {
-    
-    self.image = image;
+
+
+- (void)populateImage:(UIImage *)image fromCache:(BOOL)fromCache {
+    [self doPopulateImage:image fromCache:fromCache];
+    [self didPopulateImage:fromCache];
     
     if (self.autoresizeEnabled) {
         CGRect f = self.frame;

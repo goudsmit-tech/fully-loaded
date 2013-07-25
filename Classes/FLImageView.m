@@ -31,7 +31,7 @@
 
 @interface FLImageView()
 
-@property (nonatomic) NSURL *url;
+@property (nonatomic, readwrite) NSURL *url;
 @property (nonatomic, readwrite) UIActivityIndicatorView *activityIndicatorView;
 
 - (void)populateImage:(UIImage *)image fromCache:(BOOL)fromCache;

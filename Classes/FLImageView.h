@@ -38,6 +38,9 @@
 @property (nonatomic) BOOL showsLoadingActivity;
 @property (nonatomic, readonly) UIActivityIndicatorView *activityIndicatorView;
 
+// The URL that is currently set on the view
+@property (nonatomic, readonly) NSURL *url;
+
 - (void)prepareForReuse;
 // If YES, the URL will be unscheduled for download whenever prepareForReuse is called
 @property (nonatomic) BOOL shouldUnscheduleURLOnReuse;

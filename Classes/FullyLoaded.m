@@ -49,6 +49,8 @@
 
 static NSString * const FLIdleRunloopNotification = @"FLIdleRunloopNotification";
 
+static dispatch_queue_t flQueue = nil;
+
 // encapsulates the result created in the urlQueue thread to pass to main thread.
 @interface FLResponse : NSObject
 
@@ -72,7 +74,7 @@ image   = _image;
 @interface FullyLoaded()
 
 @property (nonatomic) NSString *imageCachePath;
-@property (nonatomic) NSMutableDictionary *imageCache;  // maps urls to images
+@property (atomic) NSMutableDictionary *imageCache;  // maps urls to images
 @property (nonatomic) NSMutableArray *urlQueue;         // urls that have not yet been requested
 @property (nonatomic) NSMutableSet *pendingURLSet;      // urls in the queue, plus requested urls
 @property (nonatomic) NSOperationQueue *responseQueue;  // operation queue for NSURLConnection
@@ -82,7 +84,6 @@ image   = _image;
 
 - (void)dequeueNextURL;
 
-- (UIImage *)cachedImageForURL:(NSURL *)url;
 - (void)handleResponse:(FLResponse *)response;
 
 @end
@@ -145,6 +146,8 @@ suspended       = _suspended;
               selector:@selector(clearMemoryCache)
                   name:UIApplicationDidEnterBackgroundNotification
                 object:nil];
+        
+        flQueue = dispatch_queue_create("flQueue", NULL);
     }
     return self;
 }
@@ -221,6 +224,7 @@ suspended       = _suspended;
                                    }
                                    else {
                                        NSString *path = [self writeImageData:data url:url];
+                                       
                                        if (path) {
                                            // because UIImage may unload images that are backed on disk,
                                            // we write and then read back the image here.
@@ -358,48 +362,50 @@ suspended       = _suspended;
 }
 
 
-- (UIImage *)cachedImageForURL:(NSURL *)url {
+- (void)cachedImageForURL:(NSURL *)url completion:(void(^)(UIImage *image))completionBlock {
         
     if (!url) {
         FLLog(@"nil url");
-        return nil;
+        completionBlock(nil);
     }
     
     UIImage *image = [self.imageCache objectForKey:url];
     if (image) {
         FLLog(@"from memory:     %@", url);
-        return image;
+        completionBlock(image);
     }
     
-    image = [UIImage imageWithContentsOfFile:[self pathForURL:url]];
-    
-    if (image) {
-        FLLog(@"from disk:       %@", url);
-        [self.imageCache setObject:image forKey:url];
-        return image;
-    }
-    
-    return nil;
+    dispatch_async(flQueue, ^{
+        
+        UIImage *image = [UIImage imageWithContentsOfFile:[self pathForURL:url]];
+        
+        if (image) {
+            FLLog(@"from disk:       %@", url);
+            [self.imageCache setObject:image forKey:url];
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completionBlock(image);
+        });
+    });
 }
 
-
-- (UIImage *)imageForURL:(NSURL *)url {
+- (void)imageForURL:(NSURL *)url completion:(void(^)(UIImage *image))completionBlock{
         
     if (!url) {
         FLLog(@"nil url");
-        return nil;
+        completionBlock(nil);
     }
     
-    UIImage *image = [self cachedImageForURL:url];
-    if (image) {
-        return image;
-    }
-    
-    // TODO: if queue contains url, move the url to the front of the queue
-    if (![self.pendingURLSet containsObject:url]) {
-        [self fetchOrEnqueueURL:url];
-    }
-    return nil;
+   [self cachedImageForURL:url completion:^(UIImage *image) {
+
+       if(image){
+           completionBlock(image);
+       }
+       else if (url && ![self.pendingURLSet containsObject:url]) {
+           [self fetchOrEnqueueURL:url];
+       }
+   }];
 }
 
 
@@ -417,15 +423,14 @@ suspended       = _suspended;
 // MARK: url string wrappers
 
 
-- (UIImage *)imageForURLString:(NSString *)urlString {
-    return [self imageForURL:[NSURL URLWithString:urlString]];
+- (void)imageForURLString:(NSString *)urlString completion:(void(^)(UIImage *image))completionBlock {
+    return [self imageForURL:[NSURL URLWithString:urlString] completion:completionBlock];
 }
 
 
-- (UIImage *)cachedImageForURLString:(NSString *)urlString {
-    return [self cachedImageForURL:[NSURL URLWithString:urlString]];
+- (void)cachedImageForURLString:(NSString *)urlString completion:(void(^)(UIImage *image))completionBlock{
+    return [self cachedImageForURL:[NSURL URLWithString:urlString] completion:completionBlock];
 }
-
 
 - (void)cacheImage:(UIImage *)image forURLString:(NSString *)urlString {
     if (image) {

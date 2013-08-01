@@ -40,11 +40,11 @@
 - (void)suspend;
 - (void)cancelURL:(NSURL *)url;
 
-- (UIImage *)imageForURL:(NSURL *)url;
-- (UIImage *)imageForURLString:(NSString *)urlString;
+- (void)imageForURL:(NSURL *)url completion:(void(^)(UIImage *image))completionBlock;
+- (void)imageForURLString:(NSString *)urlString completion:(void(^)(UIImage *image))completionBlock;
 
-- (UIImage *)cachedImageForURL:(NSURL *)url;
-- (UIImage *)cachedImageForURLString:(NSString *)urlString;
+- (void)cachedImageForURL:(NSURL *)url completion:(void(^)(UIImage *image))completionBlock;
+- (void)cachedImageForURLString:(NSString *)urlString completion:(void(^)(UIImage *image))completionBlock;
 
 - (void)cacheImage:(UIImage *)image forURL:(NSURL *)url;
 - (void)cacheImage:(UIImage *)image forURLString:(NSString *)urlString;

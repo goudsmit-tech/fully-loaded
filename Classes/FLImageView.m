@@ -107,19 +107,21 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
     
     self.url = url; // sets up observer
 
-    UIImage *image = [[FullyLoaded sharedFullyLoaded] imageForURL:url];
-    if (image) {
-        [self populateImage:image fromCache:YES];
-    }
-    else {
-        self.image = nil;
-        [self populateImage:placeholderImage fromCache:YES];
-        
-        //only show image loading if we're going to the network to fetch it
-        if (self.showsLoadingActivity) {
-            [self setLoading:YES];
+    [[FullyLoaded sharedFullyLoaded] imageForURL:url completion:^(UIImage *image) {
+    
+        if (image) {
+            [self populateImage:image fromCache:YES];
         }
-    }
+        else {
+            self.image = nil;
+            [self populateImage:placeholderImage fromCache:YES];
+            
+            //only show image loading if we're going to the network to fetch it
+            if (self.showsLoadingActivity) {
+                [self setLoading:YES];
+            }
+        }
+    }];
 }
 
 
@@ -141,15 +143,15 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
     
     if (![note.object isEqual:self.url]) return;
     
-    UIImage *image = [[FullyLoaded sharedFullyLoaded] cachedImageForURL:self.url];
-    
-    if (image && image != self.image) {
-        [self populateImage:image fromCache:NO];
-    }
-    
-    if (self.showsLoadingActivity) {
-        [self setLoading:NO];
-    }
+    [[FullyLoaded sharedFullyLoaded] cachedImageForURL:self.url completion:^(UIImage *image) {
+        if (image && image != self.image) {
+            [self populateImage:image fromCache:NO];
+        }
+        
+        if (self.showsLoadingActivity) {
+            [self setLoading:NO];
+        }
+    }];
 }
 
 

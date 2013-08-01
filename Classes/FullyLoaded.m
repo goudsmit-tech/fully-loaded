@@ -399,12 +399,12 @@ suspended       = _suspended;
     
    [self cachedImageForURL:url completion:^(UIImage *image) {
 
-       if(image){
-           completionBlock(image);
-       }
-       else if (url && ![self.pendingURLSet containsObject:url]) {
+       if (url && ![self.pendingURLSet containsObject:url]) {
            [self fetchOrEnqueueURL:url];
-       }
+      }
+       
+      completionBlock(image);
+       
    }];
 }
 

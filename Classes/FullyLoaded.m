@@ -402,7 +402,7 @@ suspended       = _suspended;
     
    [self cachedImageForURL:url completion:^(UIImage *image) {
 
-       if (url && ![self.pendingURLSet containsObject:url]) {
+      if (!image && url && ![self.pendingURLSet containsObject:url]) {
            [self fetchOrEnqueueURL:url];
       }
        

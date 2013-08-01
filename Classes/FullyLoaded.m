@@ -367,12 +367,14 @@ suspended       = _suspended;
     if (!url) {
         FLLog(@"nil url");
         completionBlock(nil);
+        return;
     }
     
     UIImage *image = [self.imageCache objectForKey:url];
     if (image) {
         FLLog(@"from memory:     %@", url);
         completionBlock(image);
+        return;
     }
     
     dispatch_async(flQueue, ^{
@@ -395,6 +397,7 @@ suspended       = _suspended;
     if (!url) {
         FLLog(@"nil url");
         completionBlock(nil);
+        return;
     }
     
    [self cachedImageForURL:url completion:^(UIImage *image) {

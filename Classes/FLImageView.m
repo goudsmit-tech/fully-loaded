@@ -52,7 +52,7 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
 
 
 - (void)dealloc {
-    self.url = nil; // removes observer
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 
@@ -78,7 +78,7 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
 }
 
 
-- (void)setUrl:(NSURL *)url {
+/*- (void)setUrl:(NSURL *)url {
     _url = url;
     
     NSNotificationCenter *c = [NSNotificationCenter defaultCenter];
@@ -87,9 +87,9 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
     if (self.url) {
         // note: because NSNotificationCenter does pointer lookup on the sender object,
         // we cannot reliably filter by URL using notifications.
-        [c addObserver:self selector:@selector(imageLoaded:) name:FLImageLoadedNotification object:nil];
+        
     }
-}
+}*/
 
     
 - (void)prepareForReuse {
@@ -98,7 +98,7 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
         [self cancelLoad];
     }
     
-    self.url = nil;
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     self.image = nil;
 }
 
@@ -114,7 +114,13 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
             [self populateImage:image fromCache:YES];
         }
         else {
+
             [self populateImage:placeholderImage fromCache:YES];
+            
+            [[NSNotificationCenter defaultCenter] addObserver:self
+                                                     selector:@selector(imageLoaded:)
+                                                         name:FLImageLoadedNotification
+                                                       object:nil];
             
             //only show image loading if we're going to the network to fetch it
             if (self.showsLoadingActivity) {
@@ -142,6 +148,8 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
 //#endif
     
     if (![note.object isEqual:self.url]) return;
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     
     [[FullyLoaded sharedFullyLoaded] cachedImageForURL:self.url completion:^(UIImage *image) {
         if (image && image != self.image) {

@@ -27,7 +27,6 @@
 
 #import "FLImageView.h"
 #import "FullyLoaded.h"
-#import "UIView+FS.h"
 
 
 @interface FLImageView()
@@ -226,12 +225,18 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
 - (void)configureActivityIndicatorView {
     self.activityIndicatorView =
     [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    
+    // center the indicator
+    CGRect activityIndicatorFrame = self.activityIndicatorView.frame;
+    activityIndicatorFrame.origin.x = (self.frame.size.width / 2.f) - (activityIndicatorFrame.size.width / 2.f);
+    activityIndicatorFrame.origin.y = (self.frame.size.height / 2.f) - (activityIndicatorFrame.size.height / 2.f);
+    self.activityIndicatorView.frame = activityIndicatorFrame;
+    
+    self.activityIndicatorView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
+    
     self.activityIndicatorView.hidesWhenStopped = YES;
     
     [self addSubview:self.activityIndicatorView];
-    
-    [self.activityIndicatorView centerInSuperview];
-    self.activityIndicatorView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
 }
 
 @end

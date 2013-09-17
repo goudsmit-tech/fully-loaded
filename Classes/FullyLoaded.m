@@ -74,7 +74,7 @@ image   = _image;
 @interface FullyLoaded()
 
 @property (nonatomic) NSString *imageCachePath;
-@property (atomic) NSMutableDictionary *imageCache;  // maps urls to images
+@property (nonatomic) NSCache *imageCache;  // maps urls to images
 @property (nonatomic) NSMutableArray *urlQueue;         // urls that have not yet been requested
 @property (nonatomic) NSMutableSet *pendingURLSet;      // urls in the queue, plus requested urls
 @property (nonatomic) NSOperationQueue *responseQueue;  // operation queue for NSURLConnection
@@ -128,7 +128,7 @@ suspended       = _suspended;
     if (self) {
         
         self.imageCachePath     = [NSTemporaryDirectory() stringByAppendingPathComponent:@"images"];
-        self.imageCache         = [NSMutableDictionary dictionary];
+        self.imageCache         = [[NSCache alloc] init];
         self.urlQueue           = [NSMutableArray array];
         self.pendingURLSet      = [NSMutableSet set];
         self.responseQueue      = [NSOperationQueue new];
@@ -371,6 +371,7 @@ suspended       = _suspended;
     }
     
     UIImage *image = [self.imageCache objectForKey:url];
+
     if (image) {
         FLLog(@"from memory:     %@", url);
         completionBlock(image);

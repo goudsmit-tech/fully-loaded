@@ -383,7 +383,7 @@ suspended       = _suspended;
     
 #if FL_USE_MAIN_QUEUE_FOR_LOADS
 
-    BOOL usingMainQueue = [[NSFileManager defaultManager] fileExistsAtPath:[self pathForURL:url]];
+    BOOL usingMainQueue = [[NSFileManager defaultManager] fileExistsAtPath:[self pathForURL:url]] && [NSThread isMainThread];
     
     dispatch_block_t loadBlock = ^{
         UIImage *image = [UIImage imageWithContentsOfFile:[self pathForURL:url]];

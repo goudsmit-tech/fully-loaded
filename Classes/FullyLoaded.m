@@ -46,6 +46,9 @@
 #define FLLog(...) ((void)0)
 #endif
 
+// by default FullyLoaded will dispatch all loads to flQueue, even if the file exists on disk.
+// this will make FL do a check on disk and return it synchronously.
+#define FL_USE_MAIN_QUEUE_FOR_LOADS 1
 
 static NSString * const FLIdleRunloopNotification = @"FLIdleRunloopNotification";
 
@@ -378,6 +381,36 @@ suspended       = _suspended;
         return;
     }
     
+#if FL_USE_MAIN_QUEUE_FOR_LOADS
+
+    BOOL usingMainQueue = [[NSFileManager defaultManager] fileExistsAtPath:[self pathForURL:url]];
+    
+    dispatch_block_t loadBlock = ^{
+        UIImage *image = [UIImage imageWithContentsOfFile:[self pathForURL:url]];
+        
+        if (image) {
+            FLLog(@"from disk:       %@", url);
+            [self.imageCache setObject:image forKey:url];
+        }
+        
+        if (usingMainQueue) {
+            completionBlock(image);
+        }
+        else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completionBlock(image);
+            });
+        }
+    };
+    
+    if (!usingMainQueue) {
+        dispatch_async(flQueue, loadBlock);
+    }
+    else {
+        loadBlock();
+    }
+    
+#else
     dispatch_async(flQueue, ^{
         
         UIImage *image = [UIImage imageWithContentsOfFile:[self pathForURL:url]];
@@ -391,6 +424,9 @@ suspended       = _suspended;
             completionBlock(image);
         });
     });
+#endif
+    
+
 }
 
 - (void)imageForURL:(NSURL *)url completion:(void(^)(UIImage *image))completionBlock{

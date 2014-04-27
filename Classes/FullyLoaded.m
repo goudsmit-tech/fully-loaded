@@ -479,8 +479,9 @@ suspended       = _suspended;
 }
 
 - (BOOL)warmUpCacheForURL:(NSURL *)url {
-    BOOL fileExists = [[NSFileManager defaultManager] fileExistsAtPath:[self pathForURL:url]];
-    if (fileExists) {
+    NSString *path = [self pathForURL:url];
+    BOOL fileExists = [[NSFileManager defaultManager] fileExistsAtPath:path];
+    if (fileExists && ![self.imageCache objectForKey:path]) {
         dispatch_async(flQueue, ^{
             UIImage *image = [UIImage imageWithContentsOfFile:[self pathForURL:url]];
             if (image) {

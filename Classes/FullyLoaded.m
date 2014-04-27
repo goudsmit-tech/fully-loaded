@@ -478,7 +478,19 @@ suspended       = _suspended;
     }
 }
 
-
+- (BOOL)warmUpCacheForURL:(NSURL *)url {
+    BOOL fileExists = [[NSFileManager defaultManager] fileExistsAtPath:[self pathForURL:url]];
+    if (fileExists) {
+        dispatch_async(flQueue, ^{
+            UIImage *image = [UIImage imageWithContentsOfFile:[self pathForURL:url]];
+            if (image) {
+                FLLog(@"from disk:       %@", url);
+                [self.imageCache setObject:image forKey:url];
+            }
+        });
+    }
+    return fileExists;
+}
 
 
 @end

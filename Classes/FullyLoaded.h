@@ -49,4 +49,6 @@
 - (void)cacheImage:(UIImage *)image forURL:(NSURL *)url;
 - (void)cacheImage:(UIImage *)image forURLString:(NSString *)urlString;
 
+- (BOOL)warmUpCacheForURL:(NSURL *)url;
+
 @end

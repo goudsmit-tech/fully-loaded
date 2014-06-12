@@ -91,6 +91,12 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
     }
 }*/
 
+- (void)setImage:(UIImage *)image {
+    [super setImage:image];
+    if (self.didChangeImageBlock) {
+        self.didChangeImageBlock(image);
+    }
+}
     
 - (void)prepareForReuse {
     [self setLoading:NO];

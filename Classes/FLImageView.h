@@ -37,6 +37,7 @@
 // after showsLoadingActivity is set to YES
 @property (nonatomic) BOOL showsLoadingActivity;
 @property (nonatomic, readonly) UIActivityIndicatorView *activityIndicatorView;
+@property (nonatomic, copy) void (^didChangeImageBlock)(UIImage *image);
 
 // The URL that is currently set on the view
 @property (nonatomic, readonly) NSURL *url;

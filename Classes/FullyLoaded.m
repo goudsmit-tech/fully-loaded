@@ -130,7 +130,11 @@ suspended       = _suspended;
     self = [super init];
     if (self) {
         
-        self.imageCachePath     = [NSTemporaryDirectory() stringByAppendingPathComponent:@"images"];
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+        NSString *baseDir = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
+        NSAssert(baseDir, @"Caches directory doesn't exist!");
+        
+        self.imageCachePath     = [baseDir stringByAppendingPathComponent:@"images"];
         self.imageCache         = [[NSCache alloc] init];
         self.urlQueue           = [NSMutableArray array];
         self.pendingURLSet      = [NSMutableSet set];

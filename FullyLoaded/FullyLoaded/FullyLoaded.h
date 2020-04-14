@@ -26,6 +26,7 @@
 
 
 #import <Foundation/Foundation.h>
+@import UIKit;
 
 //! Project version number for FullyLoaded.
 FOUNDATION_EXPORT double FullyLoadedVersionNumber;

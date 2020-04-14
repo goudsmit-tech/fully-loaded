@@ -8,12 +8,18 @@
 
 /* Begin PBXBuildFile section */
 		B061A87B2445E89200B75B5D /* FullyLoaded.h in Headers */ = {isa = PBXBuildFile; fileRef = B061A8792445E89200B75B5D /* FullyLoaded.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		B061A8842445EB2200B75B5D /* FLImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = B061A8812445EB2200B75B5D /* FLImageView.m */; };
+		B061A8852445EB2200B75B5D /* FullyLoaded.m in Sources */ = {isa = PBXBuildFile; fileRef = B061A8822445EB2200B75B5D /* FullyLoaded.m */; };
+		B061A8862445EB2200B75B5D /* FLImageView.h in Headers */ = {isa = PBXBuildFile; fileRef = B061A8832445EB2200B75B5D /* FLImageView.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		B061A8762445E89200B75B5D /* FullyLoaded.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FullyLoaded.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B061A8792445E89200B75B5D /* FullyLoaded.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FullyLoaded.h; sourceTree = "<group>"; };
 		B061A87A2445E89200B75B5D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B061A8812445EB2200B75B5D /* FLImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FLImageView.m; sourceTree = "<group>"; };
+		B061A8822445EB2200B75B5D /* FullyLoaded.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FullyLoaded.m; sourceTree = "<group>"; };
+		B061A8832445EB2200B75B5D /* FLImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FLImageView.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,6 +53,9 @@
 			isa = PBXGroup;
 			children = (
 				B061A8792445E89200B75B5D /* FullyLoaded.h */,
+				B061A8832445EB2200B75B5D /* FLImageView.h */,
+				B061A8812445EB2200B75B5D /* FLImageView.m */,
+				B061A8822445EB2200B75B5D /* FullyLoaded.m */,
 				B061A87A2445E89200B75B5D /* Info.plist */,
 			);
 			path = FullyLoaded;
@@ -60,6 +69,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B061A87B2445E89200B75B5D /* FullyLoaded.h in Headers */,
+				B061A8862445EB2200B75B5D /* FLImageView.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -131,6 +141,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B061A8842445EB2200B75B5D /* FLImageView.m in Sources */,
+				B061A8852445EB2200B75B5D /* FullyLoaded.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

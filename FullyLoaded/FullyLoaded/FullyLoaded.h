@@ -26,6 +26,7 @@
 
 
 #import <Foundation/Foundation.h>
+#import <FLImageView.h>
 @import UIKit;
 
 //! Project version number for FullyLoaded.

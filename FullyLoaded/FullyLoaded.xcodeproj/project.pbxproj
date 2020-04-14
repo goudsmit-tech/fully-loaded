@@ -10,7 +10,7 @@
 		B061A87B2445E89200B75B5D /* FullyLoaded.h in Headers */ = {isa = PBXBuildFile; fileRef = B061A8792445E89200B75B5D /* FullyLoaded.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B061A8842445EB2200B75B5D /* FLImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = B061A8812445EB2200B75B5D /* FLImageView.m */; };
 		B061A8852445EB2200B75B5D /* FullyLoaded.m in Sources */ = {isa = PBXBuildFile; fileRef = B061A8822445EB2200B75B5D /* FullyLoaded.m */; };
-		B061A8862445EB2200B75B5D /* FLImageView.h in Headers */ = {isa = PBXBuildFile; fileRef = B061A8832445EB2200B75B5D /* FLImageView.h */; };
+		B061A8862445EB2200B75B5D /* FLImageView.h in Headers */ = {isa = PBXBuildFile; fileRef = B061A8832445EB2200B75B5D /* FLImageView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */

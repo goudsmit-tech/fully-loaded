@@ -25,8 +25,7 @@
 //  THE SOFTWARE.
 
 
-#import <UIKit/UIKit.h>
-
+@import UIKit;
 
 @interface FLImageView : UIImageView
 

@@ -26,8 +26,8 @@
 
 
 #import <Foundation/Foundation.h>
-#import "FLImageView.h"
 @import UIKit;
+#import "FLImageView.h"
 
 //! Project version number for FullyLoaded.
 FOUNDATION_EXPORT double FullyLoadedVersionNumber;

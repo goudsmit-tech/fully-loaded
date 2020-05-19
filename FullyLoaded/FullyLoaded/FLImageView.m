@@ -25,6 +25,8 @@
 //  THE SOFTWARE.
 
 
+#import <UIKit/UIKit.h>
+
 #import "FLImageView.h"
 #import "FullyLoaded.h"
 

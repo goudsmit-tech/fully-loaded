@@ -16,7 +16,7 @@ Pod::Spec.new do |spec|
   #
 
   spec.name         = "fully-loaded"
-  spec.version      = "1.0.3"
+  spec.version      = "1.0.4"
   spec.summary      = "A highly opinionated image loader and cache optimized for UITableView scrolling performance"
 
   # This description is used to generate tags and improve search results.
@@ -91,8 +91,8 @@ Pod::Spec.new do |spec|
   #  Not including the public_header_files will make all headers public.
   #
 
-  spec.source_files  = "Classes", "Classes/**/*.{h,m}", "**/*.{h,m}"
-  spec.exclude_files = "Classes/Exclude"
+  spec.source_files  = "FullyLoaded"
+  # spec.exclude_files = "Classes/Exclude"
 
   # spec.public_header_files = "Classes/**/*.h"
 

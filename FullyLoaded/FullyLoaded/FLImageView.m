@@ -230,7 +230,7 @@ shouldUnscheduleURLOnReuse  = _shouldUnscheduleURLOnReuse;
 // sets up self.activityIndicatorView and adds it as a subview
 - (void)configureActivityIndicatorView {
     self.activityIndicatorView =
-    [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleMedium];
     
     // center the indicator
     CGRect activityIndicatorFrame = self.activityIndicatorView.frame;

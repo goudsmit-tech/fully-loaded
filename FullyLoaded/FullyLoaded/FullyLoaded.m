@@ -213,10 +213,13 @@ suspended       = _suspended;
         FLError(@"preflight:        %@", url);
         return;
     }
-    
-    [NSURLConnection sendAsynchronousRequest:request
-                                       queue:self.responseQueue
-                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+    // Adjusted this next call because of depracation:
+    // 'sendAsynchronousRequest:queue:completionHandler:' is deprecated: first deprecated in iOS 9.0 - Use [NSURLSession dataTaskWithRequest:completionHandler:] (see NSURLSession.h
+    // It used to also send the queue as below, so maybe we shouldn't use the NSURLSession
+    //   queue:self.responseQueue
+
+    [[NSURLSession sharedSession] dataTaskWithRequest:request
+                           completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                                
                                // TODO: catch exceptions and convert to errors?
                                @autoreleasepool {

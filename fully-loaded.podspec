@@ -16,7 +16,7 @@ Pod::Spec.new do |spec|
   #
 
   spec.name         = "fully-loaded"
-  spec.version      = "1.0.4"
+  spec.version      = "1.0.6"
   spec.summary      = "A highly opinionated image loader and cache optimized for UITableView scrolling performance"
 
   # This description is used to generate tags and improve search results.
